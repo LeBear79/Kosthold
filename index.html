@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#f4f7f3" />
+  <title>Kostholdsoversikt</title>
+  <style>
+    :root {
+      --bg: #f4f7f3;
+      --surface: #ffffff;
+      --surface-soft: #eef5ef;
+      --text: #18221b;
+      --muted: #69766d;
+      --primary: #2f7550;
+      --primary-dark: #235d3e;
+      --protein: #5f62a8;
+      --danger: #b24747;
+      --line: #dfe7e1;
+      --shadow: 0 12px 30px rgba(28, 53, 36, 0.09);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, #edf5ef 0, var(--bg) 260px);
+      min-height: 100vh;
+    }
+
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+
+    .app {
+      width: min(100%, 760px);
+      margin: 0 auto;
+      padding: 18px 16px 96px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .brand h1 { margin: 0; font-size: clamp(1.55rem, 5vw, 2.1rem); letter-spacing: -0.04em; }
+    .brand p { margin: 4px 0 0; color: var(--muted); font-size: .94rem; }
+
+    .icon-button {
+      width: 46px;
+      height: 46px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: rgba(255,255,255,.8);
+      color: var(--text);
+      box-shadow: 0 5px 18px rgba(28,53,36,.05);
+    }
+
+    .date-card, .summary-card, .section-card {
+      background: var(--surface);
+      border: 1px solid rgba(215,226,217,.9);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+    }
+
+    .date-card {
+      display: grid;
+      grid-template-columns: 42px 1fr 42px;
+      align-items: center;
+      padding: 10px;
+      margin-bottom: 14px;
+    }
+
+    .date-card button {
+      border: 0;
+      background: var(--surface-soft);
+      border-radius: 13px;
+      height: 40px;
+      font-size: 1.3rem;
+    }
+
+    .date-center { text-align: center; }
+    .date-center strong { display: block; font-size: 1rem; }
+    .date-center button { height: auto; background: none; color: var(--primary); font-size: .82rem; padding: 3px 8px; }
+
+    .summary-card { padding: 18px; margin-bottom: 14px; }
+    .summary-head { display: flex; justify-content: space-between; align-items: start; margin-bottom: 18px; }
+    .summary-head h2 { margin: 0; font-size: 1.05rem; }
+    .summary-head span { color: var(--muted); font-size: .82rem; }
+
+    .metric { margin-top: 16px; }
+    .metric:first-of-type { margin-top: 0; }
+    .metric-row { display: flex; justify-content: space-between; gap: 12px; align-items: end; margin-bottom: 7px; }
+    .metric-name { font-weight: 750; }
+    .metric-value { font-weight: 800; font-size: 1.05rem; }
+    .metric-value small { color: var(--muted); font-weight: 600; font-size: .78rem; }
+
+    .progress {
+      height: 12px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #e7eee9;
+    }
+    .progress > div { height: 100%; width: 0; border-radius: inherit; transition: width .25s ease; background: var(--primary); }
+    .progress.protein > div { background: var(--protein); }
+    .remaining { margin-top: 6px; color: var(--muted); font-size: .8rem; }
+
+    .primary-button {
+      width: 100%;
+      border: 0;
+      border-radius: 17px;
+      padding: 14px 18px;
+      background: var(--primary);
+      color: white;
+      font-weight: 800;
+      box-shadow: 0 10px 20px rgba(47,117,80,.22);
+    }
+    .primary-button:hover { background: var(--primary-dark); }
+
+    .section-card { padding: 16px; margin-top: 14px; }
+    .section-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .section-title h2 { margin: 0; font-size: 1.05rem; }
+    .section-title span { color: var(--muted); font-size: .8rem; }
+
+    .meal-block { border-top: 1px solid var(--line); padding: 13px 0; }
+    .meal-block:first-of-type { border-top: 0; padding-top: 0; }
+    .meal-header { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 7px; }
+    .meal-header strong { font-size: .96rem; }
+    .meal-total { color: var(--muted); font-size: .78rem; }
+
+    .empty { padding: 20px 8px; text-align: center; color: var(--muted); font-size: .9rem; }
+    .entry { display: grid; grid-template-columns: 1fr auto; gap: 12px; padding: 9px 0; }
+    .entry + .entry { border-top: 1px dashed var(--line); }
+    .entry-name { font-weight: 680; }
+    .entry-info { color: var(--muted); font-size: .78rem; margin-top: 2px; }
+    .entry-actions { display: flex; align-items: center; gap: 7px; }
+    .small-button { border: 1px solid var(--line); background: #fff; color: var(--muted); border-radius: 10px; padding: 6px 9px; }
+    .small-button.danger { color: var(--danger); }
+
+    .bottom-nav {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: min(100%, 760px);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      background: rgba(255,255,255,.94);
+      backdrop-filter: blur(18px);
+      border-top: 1px solid var(--line);
+      padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+      z-index: 20;
+    }
+    .nav-button { border: 0; background: transparent; color: var(--muted); border-radius: 13px; padding: 9px 5px; font-size: .76rem; font-weight: 700; }
+    .nav-button.active { color: var(--primary); background: var(--surface-soft); }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .dish-grid { display: grid; gap: 10px; }
+    .dish-card { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; border: 1px solid var(--line); border-radius: 17px; padding: 13px; background: #fff; }
+    .dish-card h3 { margin: 0; font-size: .96rem; }
+    .dish-card p { margin: 4px 0 0; color: var(--muted); font-size: .78rem; }
+    .dish-card .actions { display: flex; gap: 6px; }
+
+    .secondary-button { width: 100%; border: 1px solid var(--primary); background: #fff; color: var(--primary); border-radius: 16px; padding: 12px; font-weight: 800; }
+
+    dialog {
+      width: min(calc(100% - 28px), 520px);
+      max-height: 88vh;
+      border: 0;
+      border-radius: 24px;
+      padding: 0;
+      box-shadow: 0 24px 80px rgba(20,36,26,.28);
+      color: var(--text);
+    }
+    dialog::backdrop { background: rgba(21,34,25,.46); backdrop-filter: blur(3px); }
+    .modal { padding: 20px; overflow: auto; max-height: 88vh; }
+    .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .modal-head h2 { margin: 0; font-size: 1.2rem; }
+    .close-button { border: 0; background: var(--surface-soft); border-radius: 12px; width: 38px; height: 38px; font-size: 1.2rem; }
+
+    .field { margin: 13px 0; }
+    .field label { display: block; font-weight: 700; font-size: .84rem; margin-bottom: 6px; }
+    .field input, .field select { width: 100%; border: 1px solid var(--line); border-radius: 14px; padding: 12px 13px; background: #fff; color: var(--text); outline: none; }
+    .field input:focus, .field select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(47,117,80,.12); }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .help { color: var(--muted); font-size: .75rem; margin-top: 5px; }
+    .modal-actions { display: flex; gap: 9px; margin-top: 18px; }
+    .modal-actions button { flex: 1; }
+
+    .settings-list { display: grid; gap: 12px; }
+    .settings-note { color: var(--muted); line-height: 1.55; font-size: .88rem; }
+    .data-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .danger-button { width: 100%; border: 1px solid #e9c5c5; background: #fff7f7; color: var(--danger); border-radius: 16px; padding: 12px; font-weight: 800; }
+
+    .toast { position: fixed; left: 50%; bottom: 82px; transform: translate(-50%, 20px); background: #1f2d24; color: white; padding: 10px 15px; border-radius: 999px; opacity: 0; pointer-events: none; transition: .2s; z-index: 50; font-size: .84rem; }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (min-width: 650px) {
+      .app { padding-top: 28px; }
+      .summary-layout { display: grid; grid-template-columns: 1.2fr .8fr; gap: 14px; align-items: stretch; }
+      .summary-layout .summary-card, .summary-layout .section-card { margin: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <h1>Kosthold</h1>
+        <p>Kalorier og proteiner – enkelt hver dag</p>
+      </div>
+      <button class="icon-button" id="todayButton" title="Gå til i dag">I dag</button>
+    </header>
+
+    <section id="homeView" class="view active">
+      <div class="date-card">
+        <button id="prevDay" aria-label="Forrige dag">‹</button>
+        <div class="date-center">
+          <strong id="dateLabel"></strong>
+          <button id="datePickerButton">Velg dato</button>
+          <input id="datePicker" type="date" hidden />
+        </div>
+        <button id="nextDay" aria-label="Neste dag">›</button>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-head">
+          <h2>Dagens oversikt</h2>
+          <span id="entryCount">0 registreringer</span>
+        </div>
+
+        <div class="metric">
+          <div class="metric-row">
+            <span class="metric-name">Kalorier</span>
+            <span class="metric-value"><span id="caloriesTotal">0</span> <small>/ <span id="calorieGoalLabel">2200</span> kcal</small></span>
+          </div>
+          <div class="progress"><div id="calorieBar"></div></div>
+          <div class="remaining" id="calorieRemaining"></div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-row">
+            <span class="metric-name">Proteiner</span>
+            <span class="metric-value"><span id="proteinTotal">0</span> <small>/ <span id="proteinGoalLabel">150</span> g</small></span>
+          </div>
+          <div class="progress protein"><div id="proteinBar"></div></div>
+          <div class="remaining" id="proteinRemaining"></div>
+        </div>
+      </div>
+
+      <button class="primary-button" id="openAddEntry">+ Legg til standardrett</button>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>Dagens måltider</h2>
+          <span id="dayTotalMini"></span>
+        </div>
+        <div id="entriesContainer"></div>
+      </section>
+    </section>
+
+    <section id="dishesView" class="view">
+      <section class="section-card" style="margin-top:0">
+        <div class="section-title">
+          <div>
+            <h2>Standardretter</h2>
+            <span>Ferdig utregnede verdier per porsjon</span>
+          </div>
+        </div>
+        <button class="primary-button" id="openAddDish">+ Ny standardrett</button>
+        <div style="height:12px"></div>
+        <div id="dishList" class="dish-grid"></div>
+      </section>
+    </section>
+
+    <section id="settingsView" class="view">
+      <section class="section-card" style="margin-top:0">
+        <div class="section-title"><h2>Daglige mål</h2></div>
+        <div class="settings-list">
+          <div class="field">
+            <label for="goalCalories">Kalorier per dag</label>
+            <input id="goalCalories" type="number" min="1" step="1" inputmode="numeric" />
+          </div>
+          <div class="field">
+            <label for="goalProtein">Proteiner per dag (gram)</label>
+            <input id="goalProtein" type="number" min="1" step="1" inputmode="decimal" />
+          </div>
+          <button class="primary-button" id="saveGoals">Lagre mål</button>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title"><h2>Sikkerhetskopi</h2></div>
+        <p class="settings-note">Opplysningene lagres lokalt i nettleseren på denne enheten. Eksporter en sikkerhetskopi før du bytter enhet eller tømmer nettleserdata.</p>
+        <div class="data-actions">
+          <button class="secondary-button" id="exportData">Eksporter</button>
+          <button class="secondary-button" id="importData">Importer</button>
+          <input id="importFile" type="file" accept="application/json" hidden />
+        </div>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title"><h2>Nullstill</h2></div>
+        <button class="danger-button" id="resetApp">Slett alle registreringer</button>
+      </section>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Hovedmeny">
+    <button class="nav-button active" data-view="homeView">Oversikt</button>
+    <button class="nav-button" data-view="dishesView">Standardretter</button>
+    <button class="nav-button" data-view="settingsView">Innstillinger</button>
+  </nav>
+
+  <dialog id="entryDialog">
+    <form class="modal" id="entryForm">
+      <div class="modal-head">
+        <h2>Legg til standardrett</h2>
+        <button type="button" class="close-button" data-close="entryDialog">×</button>
+      </div>
+      <div class="field">
+        <label for="entryDish">Standardrett</label>
+        <select id="entryDish" required></select>
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label for="entryMeal">Måltid</label>
+          <select id="entryMeal" required>
+            <option>Frokost</option>
+            <option>Lunsj</option>
+            <option>Middag</option>
+            <option>Kveldsmat</option>
+            <option>Mellommåltid</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="entryPortions">Antall porsjoner</label>
+          <input id="entryPortions" type="number" min="0.1" step="0.1" value="1" required inputmode="decimal" />
+        </div>
+      </div>
+      <div class="help" id="entryPreview"></div>
+      <div class="modal-actions">
+        <button type="button" class="secondary-button" data-close="entryDialog">Avbryt</button>
+        <button type="submit" class="primary-button">Legg til</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="dishDialog">
+    <form class="modal" id="dishForm">
+      <div class="modal-head">
+        <h2 id="dishDialogTitle">Ny standardrett</h2>
+        <button type="button" class="close-button" data-close="dishDialog">×</button>
+      </div>
+      <input id="dishId" type="hidden" />
+      <div class="field">
+        <label for="dishName">Navn på retten</label>
+        <input id="dishName" type="text" maxlength="60" required placeholder="For eksempel havregrøt" />
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label for="dishCalories">Kalorier</label>
+          <input id="dishCalories" type="number" min="0" step="0.1" required inputmode="decimal" />
+        </div>
+        <div class="field">
+          <label for="dishProtein">Proteiner (g)</label>
+          <input id="dishProtein" type="number" min="0" step="0.1" required inputmode="decimal" />
+        </div>
+      </div>
+      <div class="field">
+        <label for="dishPortion">Porsjonsbeskrivelse</label>
+        <input id="dishPortion" type="text" maxlength="50" placeholder="For eksempel 1 bolle eller 1 stk" />
+        <div class="help">Tallene ovenfor skal gjelde for én porsjon.</div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="secondary-button" data-close="dishDialog">Avbryt</button>
+        <button type="submit" class="primary-button">Lagre rett</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const STORAGE_KEY = 'kostholdApp_v1_0';
+    const defaultData = {
+      goals: { calories: 2200, protein: 150 },
+      dishes: [
+        { id: 'havrelapp', name: 'Havrelapp', calories: 57.5, protein: 3.5, portion: '1 stk' },
+        { id: 'yoghurtblanding', name: 'Yoghurtblanding', calories: 304.8, protein: 20.4, portion: '1 porsjon' },
+        { id: 'omelett', name: 'Omelett', calories: 748.2, protein: 37.7, portion: '1 hel rett' }
+      ],
+      days: {}
+    };
+
+    let data = loadData();
+    let selectedDate = todayKey();
+
+    const mealOrder = ['Frokost', 'Lunsj', 'Middag', 'Kveldsmat', 'Mellommåltid'];
+    const $ = id => document.getElementById(id);
+
+    function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
+    function loadData() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (!saved) return clone(defaultData);
+        return {
+          goals: { ...defaultData.goals, ...(saved.goals || {}) },
+          dishes: Array.isArray(saved.dishes) ? saved.dishes : clone(defaultData.dishes),
+          days: saved.days && typeof saved.days === 'object' ? saved.days : {}
+        };
+      } catch { return clone(defaultData); }
+    }
+    function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+    function todayKey() {
+      const d = new Date();
+      return [d.getFullYear(), String(d.getMonth()+1).padStart(2,'0'), String(d.getDate()).padStart(2,'0')].join('-');
+    }
+    function dateFromKey(key) { const [y,m,d] = key.split('-').map(Number); return new Date(y,m-1,d); }
+    function dateKey(date) { return [date.getFullYear(), String(date.getMonth()+1).padStart(2,'0'), String(date.getDate()).padStart(2,'0')].join('-'); }
+    function formatDate(key) {
+      const d = dateFromKey(key);
+      const opts = { weekday:'long', day:'numeric', month:'long', year: d.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined };
+      const text = d.toLocaleDateString('nb-NO', opts);
+      return text.charAt(0).toUpperCase() + text.slice(1);
+    }
+    function round1(n) { return Math.round((Number(n) + Number.EPSILON) * 10) / 10; }
+    function fmt(n) { const x = round1(n); return Number.isInteger(x) ? String(x) : x.toLocaleString('nb-NO', {maximumFractionDigits:1}); }
+    function uid() { return (crypto.randomUUID ? crypto.randomUUID() : Date.now()+'_'+Math.random().toString(16).slice(2)); }
+    function dayEntries() { return data.days[selectedDate] || []; }
+    function totals(entries = dayEntries()) {
+      return entries.reduce((a,e) => ({ calories: a.calories + Number(e.calories), protein: a.protein + Number(e.protein) }), {calories:0, protein:0});
+    }
+    function showToast(message) {
+      $('toast').textContent = message;
+      $('toast').classList.add('show');
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => $('toast').classList.remove('show'), 1800);
+    }
+
+    function renderAll() {
+      renderHome();
+      renderDishes();
+      renderSettings();
+      populateDishSelect();
+    }
+
+    function renderHome() {
+      $('dateLabel').textContent = formatDate(selectedDate);
+      $('datePicker').value = selectedDate;
+      const entries = dayEntries();
+      const total = totals(entries);
+      const cg = Number(data.goals.calories) || 1;
+      const pg = Number(data.goals.protein) || 1;
+
+      $('caloriesTotal').textContent = fmt(total.calories);
+      $('proteinTotal').textContent = fmt(total.protein);
+      $('calorieGoalLabel').textContent = fmt(cg);
+      $('proteinGoalLabel').textContent = fmt(pg);
+      $('calorieBar').style.width = Math.min(100, total.calories/cg*100) + '%';
+      $('proteinBar').style.width = Math.min(100, total.protein/pg*100) + '%';
+      $('calorieRemaining').textContent = total.calories <= cg ? `${fmt(cg-total.calories)} kcal igjen` : `${fmt(total.calories-cg)} kcal over målet`;
+      $('proteinRemaining').textContent = total.protein <= pg ? `${fmt(pg-total.protein)} g protein igjen` : `${fmt(total.protein-pg)} g over målet`;
+      $('entryCount').textContent = `${entries.length} ${entries.length === 1 ? 'registrering' : 'registreringer'}`;
+      $('dayTotalMini').textContent = `${fmt(total.calories)} kcal · ${fmt(total.protein)} g`;
+
+      const container = $('entriesContainer');
+      if (!entries.length) {
+        container.innerHTML = '<div class="empty">Ingen mat er registrert denne dagen.</div>';
+        return;
+      }
+
+      container.innerHTML = mealOrder.map(meal => {
+        const mealEntries = entries.filter(e => e.meal === meal);
+        if (!mealEntries.length) return '';
+        const mt = totals(mealEntries);
+        return `<div class="meal-block">
+          <div class="meal-header"><strong>${escapeHtml(meal)}</strong><span class="meal-total">${fmt(mt.calories)} kcal · ${fmt(mt.protein)} g protein</span></div>
+          ${mealEntries.map(e => `<div class="entry">
+            <div><div class="entry-name">${escapeHtml(e.name)}</div><div class="entry-info">${fmt(e.portions)} ${e.portions == 1 ? 'porsjon' : 'porsjoner'} · ${fmt(e.calories)} kcal · ${fmt(e.protein)} g protein</div></div>
+            <div class="entry-actions"><button class="small-button danger" onclick="deleteEntry('${e.id}')">Slett</button></div>
+          </div>`).join('')}
+        </div>`;
+      }).join('');
+    }
+
+    function renderDishes() {
+      const list = $('dishList');
+      if (!data.dishes.length) {
+        list.innerHTML = '<div class="empty">Du har ingen standardretter ennå.</div>';
+        return;
+      }
+      list.innerHTML = [...data.dishes].sort((a,b)=>a.name.localeCompare(b.name,'nb')).map(d => `
+        <article class="dish-card">
+          <div>
+            <h3>${escapeHtml(d.name)}</h3>
+            <p>${fmt(d.calories)} kcal · ${fmt(d.protein)} g protein${d.portion ? ` · ${escapeHtml(d.portion)}` : ''}</p>
+          </div>
+          <div class="actions">
+            <button class="small-button" onclick="editDish('${d.id}')">Endre</button>
+            <button class="small-button danger" onclick="deleteDish('${d.id}')">Slett</button>
+          </div>
+        </article>`).join('');
+    }
+
+    function renderSettings() {
+      $('goalCalories').value = data.goals.calories;
+      $('goalProtein').value = data.goals.protein;
+    }
+
+    function populateDishSelect() {
+      const select = $('entryDish');
+      const current = select.value;
+      select.innerHTML = data.dishes.length
+        ? [...data.dishes].sort((a,b)=>a.name.localeCompare(b.name,'nb')).map(d => `<option value="${d.id}">${escapeHtml(d.name)} – ${fmt(d.calories)} kcal / ${fmt(d.protein)} g</option>`).join('')
+        : '<option value="">Opprett en standardrett først</option>';
+      if ([...select.options].some(o => o.value === current)) select.value = current;
+      updateEntryPreview();
+    }
+
+    function updateEntryPreview() {
+      const dish = data.dishes.find(d => d.id === $('entryDish').value);
+      const portions = Number($('entryPortions').value) || 0;
+      $('entryPreview').textContent = dish ? `Legger til ${fmt(dish.calories*portions)} kcal og ${fmt(dish.protein*portions)} g protein.` : '';
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+    }
+
+    function openDishDialog(dish = null) {
+      $('dishDialogTitle').textContent = dish ? 'Endre standardrett' : 'Ny standardrett';
+      $('dishId').value = dish?.id || '';
+      $('dishName').value = dish?.name || '';
+      $('dishCalories').value = dish?.calories ?? '';
+      $('dishProtein').value = dish?.protein ?? '';
+      $('dishPortion').value = dish?.portion || '';
+      $('dishDialog').showModal();
+      setTimeout(() => $('dishName').focus(), 50);
+    }
+
+    window.editDish = id => {
+      const dish = data.dishes.find(d => d.id === id);
+      if (dish) openDishDialog(dish);
+    };
+    window.deleteDish = id => {
+      const dish = data.dishes.find(d => d.id === id);
+      if (!dish || !confirm(`Slette standardretten «${dish.name}»? Tidligere dagsregistreringer beholdes.`)) return;
+      data.dishes = data.dishes.filter(d => d.id !== id);
+      saveData(); renderAll(); showToast('Standardrett slettet');
+    };
+    window.deleteEntry = id => {
+      data.days[selectedDate] = dayEntries().filter(e => e.id !== id);
+      if (!data.days[selectedDate].length) delete data.days[selectedDate];
+      saveData(); renderHome(); showToast('Registrering slettet');
+    };
+
+    $('openAddEntry').addEventListener('click', () => {
+      if (!data.dishes.length) { switchView('dishesView'); openDishDialog(); return; }
+      $('entryPortions').value = 1;
+      updateEntryPreview();
+      $('entryDialog').showModal();
+    });
+    $('openAddDish').addEventListener('click', () => openDishDialog());
+    $('entryDish').addEventListener('change', updateEntryPreview);
+    $('entryPortions').addEventListener('input', updateEntryPreview);
+
+    $('entryForm').addEventListener('submit', event => {
+      event.preventDefault();
+      const dish = data.dishes.find(d => d.id === $('entryDish').value);
+      const portions = Number($('entryPortions').value);
+      if (!dish || !Number.isFinite(portions) || portions <= 0) return;
+      const entry = {
+        id: uid(), dishId: dish.id, name: dish.name, meal: $('entryMeal').value, portions,
+        calories: round1(dish.calories * portions), protein: round1(dish.protein * portions), createdAt: new Date().toISOString()
+      };
+      if (!data.days[selectedDate]) data.days[selectedDate] = [];
+      data.days[selectedDate].push(entry);
+      saveData(); $('entryDialog').close(); renderHome(); showToast('Retten er lagt til');
+    });
+
+    $('dishForm').addEventListener('submit', event => {
+      event.preventDefault();
+      const id = $('dishId').value || uid();
+      const dish = {
+        id,
+        name: $('dishName').value.trim(),
+        calories: round1(Number($('dishCalories').value)),
+        protein: round1(Number($('dishProtein').value)),
+        portion: $('dishPortion').value.trim()
+      };
+      if (!dish.name || !Number.isFinite(dish.calories) || !Number.isFinite(dish.protein)) return;
+      const idx = data.dishes.findIndex(d => d.id === id);
+      if (idx >= 0) data.dishes[idx] = dish; else data.dishes.push(dish);
+      saveData(); $('dishDialog').close(); renderAll(); showToast(idx >= 0 ? 'Standardrett oppdatert' : 'Standardrett lagt til');
+    });
+
+    document.querySelectorAll('[data-close]').forEach(btn => btn.addEventListener('click', () => $(btn.dataset.close).close()));
+
+    function shiftDay(amount) {
+      const d = dateFromKey(selectedDate); d.setDate(d.getDate()+amount); selectedDate = dateKey(d); renderHome();
+    }
+    $('prevDay').addEventListener('click', () => shiftDay(-1));
+    $('nextDay').addEventListener('click', () => shiftDay(1));
+    $('todayButton').addEventListener('click', () => { selectedDate = todayKey(); switchView('homeView'); renderHome(); });
+    $('datePickerButton').addEventListener('click', () => { if ($('datePicker').showPicker) $('datePicker').showPicker(); else $('datePicker').click(); });
+    $('datePicker').addEventListener('change', e => { if (e.target.value) { selectedDate=e.target.value; renderHome(); } });
+
+    function switchView(id) {
+      document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === id));
+      document.querySelectorAll('.nav-button').forEach(b => b.classList.toggle('active', b.dataset.view === id));
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+    document.querySelectorAll('.nav-button').forEach(btn => btn.addEventListener('click', () => switchView(btn.dataset.view)));
+
+    $('saveGoals').addEventListener('click', () => {
+      const calories = Number($('goalCalories').value), protein = Number($('goalProtein').value);
+      if (calories <= 0 || protein <= 0) { alert('Målene må være større enn null.'); return; }
+      data.goals = { calories: round1(calories), protein: round1(protein) };
+      saveData(); renderHome(); showToast('Målene er lagret');
+    });
+
+    $('exportData').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download=`kosthold-sikkerhetskopi-${todayKey()}.json`; a.click();
+      URL.revokeObjectURL(url); showToast('Sikkerhetskopi eksportert');
+    });
+    $('importData').addEventListener('click', () => $('importFile').click());
+    $('importFile').addEventListener('change', async e => {
+      const file=e.target.files[0]; if(!file) return;
+      try {
+        const imported=JSON.parse(await file.text());
+        if(!imported.goals || !Array.isArray(imported.dishes) || typeof imported.days!=='object') throw new Error();
+        if(!confirm('Importere sikkerhetskopien og erstatte dataene som ligger i appen nå?')) return;
+        data=imported; saveData(); renderAll(); showToast('Sikkerhetskopi importert');
+      } catch { alert('Filen kunne ikke importeres.'); }
+      e.target.value='';
+    });
+    $('resetApp').addEventListener('click', () => {
+      if (!confirm('Er du sikker? Alle dagsregistreringer slettes. Standardrettene og målene beholdes.')) return;
+      data.days={}; saveData(); renderHome(); showToast('Alle registreringer er slettet');
+    });
+
+    renderAll();
+  </script>
+</body>
+</html>
