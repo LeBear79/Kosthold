@@ -1,655 +1,110 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="no">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#f4f7f3" />
-  <title>Kostholdsoversikt</title>
-  <style>
-    :root {
-      --bg: #f4f7f3;
-      --surface: #ffffff;
-      --surface-soft: #eef5ef;
-      --text: #18221b;
-      --muted: #69766d;
-      --primary: #2f7550;
-      --primary-dark: #235d3e;
-      --protein: #5f62a8;
-      --danger: #b24747;
-      --line: #dfe7e1;
-      --shadow: 0 12px 30px rgba(28, 53, 36, 0.09);
-      --radius: 22px;
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--text);
-      background: linear-gradient(180deg, #edf5ef 0, var(--bg) 260px);
-      min-height: 100vh;
-    }
-
-    button, input, select { font: inherit; }
-    button { cursor: pointer; }
-
-    .app {
-      width: min(100%, 760px);
-      margin: 0 auto;
-      padding: 18px 16px 96px;
-    }
-
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 18px;
-    }
-
-    .brand h1 { margin: 0; font-size: clamp(1.55rem, 5vw, 2.1rem); letter-spacing: -0.04em; }
-    .brand p { margin: 4px 0 0; color: var(--muted); font-size: .94rem; }
-
-    .icon-button {
-      width: 46px;
-      height: 46px;
-      border: 1px solid var(--line);
-      border-radius: 15px;
-      background: rgba(255,255,255,.8);
-      color: var(--text);
-      box-shadow: 0 5px 18px rgba(28,53,36,.05);
-    }
-
-    .date-card, .summary-card, .section-card {
-      background: var(--surface);
-      border: 1px solid rgba(215,226,217,.9);
-      box-shadow: var(--shadow);
-      border-radius: var(--radius);
-    }
-
-    .date-card {
-      display: grid;
-      grid-template-columns: 42px 1fr 42px;
-      align-items: center;
-      padding: 10px;
-      margin-bottom: 14px;
-    }
-
-    .date-card button {
-      border: 0;
-      background: var(--surface-soft);
-      border-radius: 13px;
-      height: 40px;
-      font-size: 1.3rem;
-    }
-
-    .date-center { text-align: center; }
-    .date-center strong { display: block; font-size: 1rem; }
-    .date-center button { height: auto; background: none; color: var(--primary); font-size: .82rem; padding: 3px 8px; }
-
-    .summary-card { padding: 18px; margin-bottom: 14px; }
-    .summary-head { display: flex; justify-content: space-between; align-items: start; margin-bottom: 18px; }
-    .summary-head h2 { margin: 0; font-size: 1.05rem; }
-    .summary-head span { color: var(--muted); font-size: .82rem; }
-
-    .metric { margin-top: 16px; }
-    .metric:first-of-type { margin-top: 0; }
-    .metric-row { display: flex; justify-content: space-between; gap: 12px; align-items: end; margin-bottom: 7px; }
-    .metric-name { font-weight: 750; }
-    .metric-value { font-weight: 800; font-size: 1.05rem; }
-    .metric-value small { color: var(--muted); font-weight: 600; font-size: .78rem; }
-
-    .progress {
-      height: 12px;
-      border-radius: 999px;
-      overflow: hidden;
-      background: #e7eee9;
-    }
-    .progress > div { height: 100%; width: 0; border-radius: inherit; transition: width .25s ease; background: var(--primary); }
-    .progress.protein > div { background: var(--protein); }
-    .remaining { margin-top: 6px; color: var(--muted); font-size: .8rem; }
-
-    .primary-button {
-      width: 100%;
-      border: 0;
-      border-radius: 17px;
-      padding: 14px 18px;
-      background: var(--primary);
-      color: white;
-      font-weight: 800;
-      box-shadow: 0 10px 20px rgba(47,117,80,.22);
-    }
-    .primary-button:hover { background: var(--primary-dark); }
-
-    .section-card { padding: 16px; margin-top: 14px; }
-    .section-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
-    .section-title h2 { margin: 0; font-size: 1.05rem; }
-    .section-title span { color: var(--muted); font-size: .8rem; }
-
-    .meal-block { border-top: 1px solid var(--line); padding: 13px 0; }
-    .meal-block:first-of-type { border-top: 0; padding-top: 0; }
-    .meal-header { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 7px; }
-    .meal-header strong { font-size: .96rem; }
-    .meal-total { color: var(--muted); font-size: .78rem; }
-
-    .empty { padding: 20px 8px; text-align: center; color: var(--muted); font-size: .9rem; }
-    .entry { display: grid; grid-template-columns: 1fr auto; gap: 12px; padding: 9px 0; }
-    .entry + .entry { border-top: 1px dashed var(--line); }
-    .entry-name { font-weight: 680; }
-    .entry-info { color: var(--muted); font-size: .78rem; margin-top: 2px; }
-    .entry-actions { display: flex; align-items: center; gap: 7px; }
-    .small-button { border: 1px solid var(--line); background: #fff; color: var(--muted); border-radius: 10px; padding: 6px 9px; }
-    .small-button.danger { color: var(--danger); }
-
-    .bottom-nav {
-      position: fixed;
-      left: 50%;
-      bottom: 0;
-      transform: translateX(-50%);
-      width: min(100%, 760px);
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      background: rgba(255,255,255,.94);
-      backdrop-filter: blur(18px);
-      border-top: 1px solid var(--line);
-      padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
-      z-index: 20;
-    }
-    .nav-button { border: 0; background: transparent; color: var(--muted); border-radius: 13px; padding: 9px 5px; font-size: .76rem; font-weight: 700; }
-    .nav-button.active { color: var(--primary); background: var(--surface-soft); }
-
-    .view { display: none; }
-    .view.active { display: block; }
-
-    .dish-grid { display: grid; gap: 10px; }
-    .dish-card { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; border: 1px solid var(--line); border-radius: 17px; padding: 13px; background: #fff; }
-    .dish-card h3 { margin: 0; font-size: .96rem; }
-    .dish-card p { margin: 4px 0 0; color: var(--muted); font-size: .78rem; }
-    .dish-card .actions { display: flex; gap: 6px; }
-
-    .secondary-button { width: 100%; border: 1px solid var(--primary); background: #fff; color: var(--primary); border-radius: 16px; padding: 12px; font-weight: 800; }
-
-    dialog {
-      width: min(calc(100% - 28px), 520px);
-      max-height: 88vh;
-      border: 0;
-      border-radius: 24px;
-      padding: 0;
-      box-shadow: 0 24px 80px rgba(20,36,26,.28);
-      color: var(--text);
-    }
-    dialog::backdrop { background: rgba(21,34,25,.46); backdrop-filter: blur(3px); }
-    .modal { padding: 20px; overflow: auto; max-height: 88vh; }
-    .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-    .modal-head h2 { margin: 0; font-size: 1.2rem; }
-    .close-button { border: 0; background: var(--surface-soft); border-radius: 12px; width: 38px; height: 38px; font-size: 1.2rem; }
-
-    .field { margin: 13px 0; }
-    .field label { display: block; font-weight: 700; font-size: .84rem; margin-bottom: 6px; }
-    .field input, .field select { width: 100%; border: 1px solid var(--line); border-radius: 14px; padding: 12px 13px; background: #fff; color: var(--text); outline: none; }
-    .field input:focus, .field select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(47,117,80,.12); }
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .help { color: var(--muted); font-size: .75rem; margin-top: 5px; }
-    .modal-actions { display: flex; gap: 9px; margin-top: 18px; }
-    .modal-actions button { flex: 1; }
-
-    .settings-list { display: grid; gap: 12px; }
-    .settings-note { color: var(--muted); line-height: 1.55; font-size: .88rem; }
-    .data-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .danger-button { width: 100%; border: 1px solid #e9c5c5; background: #fff7f7; color: var(--danger); border-radius: 16px; padding: 12px; font-weight: 800; }
-
-    .toast { position: fixed; left: 50%; bottom: 82px; transform: translate(-50%, 20px); background: #1f2d24; color: white; padding: 10px 15px; border-radius: 999px; opacity: 0; pointer-events: none; transition: .2s; z-index: 50; font-size: .84rem; }
-    .toast.show { opacity: 1; transform: translate(-50%, 0); }
-
-    @media (min-width: 650px) {
-      .app { padding-top: 28px; }
-      .summary-layout { display: grid; grid-template-columns: 1.2fr .8fr; gap: 14px; align-items: stretch; }
-      .summary-layout .summary-card, .summary-layout .section-card { margin: 0; }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#13251d">
+<title>Kosthold – kalorier og protein</title>
+<style>
+:root{--bg:#f3f5f2;--card:#fff;--ink:#142018;--muted:#68736c;--line:#dde3de;--accent:#1f6b47;--accent2:#dcefe4;--warn:#a96000;--danger:#a13d3d;--shadow:0 10px 30px rgba(20,32,24,.08);--radius:22px}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}button,input,select{font:inherit}.app{max-width:920px;margin:auto;min-height:100vh;padding:18px 16px 100px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}.brand h1{font-size:25px;margin:0}.brand p{margin:4px 0 0;color:var(--muted);font-size:14px}.icon-btn{border:0;background:var(--card);width:44px;height:44px;border-radius:14px;box-shadow:var(--shadow);cursor:pointer;font-size:19px}.date-row{display:flex;gap:10px;align-items:center;margin-bottom:14px}.date-row input{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px 13px;flex:1;max-width:260px}.today-btn,.primary,.secondary,.danger{border:0;border-radius:14px;padding:11px 15px;cursor:pointer;font-weight:700}.primary{background:var(--accent);color:white}.secondary{background:var(--accent2);color:var(--accent)}.danger{background:#f8e8e8;color:var(--danger)}.summary{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}.metric{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}.metric-head{display:flex;justify-content:space-between;gap:10px;align-items:baseline}.metric h2{font-size:15px;margin:0;color:var(--muted)}.metric .big{font-size:28px;font-weight:800;margin:8px 0 2px}.metric .remaining{font-size:13px;color:var(--muted)}.bar{height:10px;background:#edf0ed;border-radius:999px;overflow:hidden;margin-top:14px}.bar>div{height:100%;background:var(--accent);border-radius:inherit;transition:width .25s}.bar.over>div{background:var(--warn)}.section-title{display:flex;justify-content:space-between;align-items:center;margin:22px 2px 10px}.section-title h2{font-size:19px;margin:0}.meal{background:var(--card);border-radius:20px;box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}.meal-head{display:flex;justify-content:space-between;align-items:center;padding:15px 16px;border-bottom:1px solid var(--line)}.meal-head h3{margin:0;font-size:17px}.meal-total{font-size:13px;color:var(--muted);text-align:right}.items{padding:0 16px}.item{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:13px 0;border-bottom:1px solid var(--line)}.item:last-child{border-bottom:0}.item-name{font-weight:700}.item-sub{font-size:13px;color:var(--muted);margin-top:3px}.item-values{text-align:right;font-size:13px}.trash{border:0;background:transparent;color:var(--danger);cursor:pointer;font-size:18px}.empty{padding:18px 16px;color:var(--muted);font-size:14px}.meal-add{width:100%;border:0;border-top:1px solid var(--line);background:#fbfcfb;color:var(--accent);padding:13px;font-weight:800;cursor:pointer}.fab{position:fixed;right:max(18px,calc((100vw - 920px)/2 + 18px));bottom:24px;border:0;border-radius:18px;background:var(--accent);color:#fff;padding:15px 20px;font-weight:800;box-shadow:0 12px 30px rgba(31,107,71,.32);cursor:pointer}.modal{position:fixed;inset:0;background:rgba(8,18,12,.5);display:none;align-items:flex-end;justify-content:center;z-index:20;padding:0}.modal.open{display:flex}.sheet{background:var(--card);width:100%;max-width:720px;max-height:92vh;overflow:auto;border-radius:26px 26px 0 0;padding:20px}.sheet-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}.sheet-head h2{margin:0;font-size:21px}.close{border:0;background:#eef1ee;border-radius:12px;width:38px;height:38px;font-size:20px;cursor:pointer}.field{margin-bottom:14px}.field label{display:block;font-size:13px;font-weight:800;margin-bottom:6px}.field input,.field select{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:13px;background:white}.food-search{position:sticky;top:-20px;background:var(--card);padding:4px 0 10px;z-index:2}.food-list{border:1px solid var(--line);border-radius:15px;max-height:260px;overflow:auto}.food-option{width:100%;display:flex;justify-content:space-between;gap:12px;text-align:left;border:0;border-bottom:1px solid var(--line);background:white;padding:12px;cursor:pointer}.food-option:last-child{border-bottom:0}.food-option.selected{background:var(--accent2)}.food-option strong{display:block}.food-option small{color:var(--muted)}.calc-preview{background:#f5f8f5;border-radius:15px;padding:13px;margin:12px 0;font-weight:700}.actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.db-row{display:grid;grid-template-columns:1fr auto;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}.db-meta{color:var(--muted);font-size:13px}.small{font-size:12px;color:var(--muted);line-height:1.45}.tabs{display:flex;gap:8px;margin-bottom:14px}.tab{flex:1;border:1px solid var(--line);background:white;border-radius:12px;padding:10px;cursor:pointer;font-weight:700}.tab.active{background:var(--accent2);color:var(--accent);border-color:transparent}.hidden{display:none!important}@media(max-width:620px){.summary{grid-template-columns:1fr}.settings-grid{grid-template-columns:1fr}.item{grid-template-columns:1fr auto}.item-values{grid-column:1}.fab{left:16px;right:16px}.sheet{padding-bottom:calc(18px + env(safe-area-inset-bottom))}}
+</style>
 </head>
 <body>
-  <main class="app">
-    <header class="topbar">
-      <div class="brand">
-        <h1>Kosthold</h1>
-        <p>Kalorier og proteiner – enkelt hver dag</p>
-      </div>
-      <button class="icon-button" id="todayButton" title="Gå til i dag">I dag</button>
-    </header>
+<div class="app">
+ <div class="topbar"><div class="brand"><h1>Kosthold</h1><p>Kalorier og protein – enkelt per dag</p></div><button class="icon-btn" id="settingsBtn" title="Innstillinger">⚙</button></div>
+ <div class="date-row"><input type="date" id="dateInput"><button class="secondary" id="todayBtn">I dag</button></div>
+ <section class="summary">
+  <div class="metric"><div class="metric-head"><h2>Kalorier</h2><span id="calPercent">0 %</span></div><div class="big"><span id="calUsed">0</span> <small>/ <span id="calGoal">2200</span> kcal</small></div><div class="remaining" id="calRemaining"></div><div class="bar" id="calBar"><div></div></div></div>
+  <div class="metric"><div class="metric-head"><h2>Protein</h2><span id="protPercent">0 %</span></div><div class="big"><span id="protUsed">0</span> <small>/ <span id="protGoal">150</span> g</small></div><div class="remaining" id="protRemaining"></div><div class="bar" id="protBar"><div></div></div></div>
+ </section>
+ <div class="section-title"><h2>Dagens måltider</h2><span class="small" id="dayCount"></span></div>
+ <div id="meals"></div>
+</div>
+<button class="fab" id="addBtn">+ Legg til mat</button>
 
-    <section id="homeView" class="view active">
-      <div class="date-card">
-        <button id="prevDay" aria-label="Forrige dag">‹</button>
-        <div class="date-center">
-          <strong id="dateLabel"></strong>
-          <button id="datePickerButton">Velg dato</button>
-          <input id="datePicker" type="date" hidden />
-        </div>
-        <button id="nextDay" aria-label="Neste dag">›</button>
-      </div>
+<div class="modal" id="entryModal"><div class="sheet">
+ <div class="sheet-head"><h2>Legg til mat</h2><button class="close" data-close="entryModal">×</button></div>
+ <div class="field"><label>Måltid</label><select id="mealSelect"></select></div>
+ <div class="food-search field"><label>Søk i matvarelisten</label><input id="foodSearch" type="search" placeholder="For eksempel havregryn, egg eller kylling"></div>
+ <div class="food-list" id="foodList"></div>
+ <div id="quantityArea" class="hidden">
+  <div class="field" style="margin-top:14px"><label id="quantityLabel">Mengde</label><input id="quantityInput" type="number" min="0" step="0.1" inputmode="decimal"></div>
+  <div class="calc-preview" id="preview"></div>
+ </div>
+ <div class="actions"><button class="secondary" data-close="entryModal">Avbryt</button><button class="primary" id="saveEntry" disabled>Legg til</button></div>
+ </div></div>
 
-      <div class="summary-card">
-        <div class="summary-head">
-          <h2>Dagens oversikt</h2>
-          <span id="entryCount">0 registreringer</span>
-        </div>
+<div class="modal" id="settingsModal"><div class="sheet">
+ <div class="sheet-head"><h2>Innstillinger</h2><button class="close" data-close="settingsModal">×</button></div>
+ <div class="tabs"><button class="tab active" data-tab="goals">Dagsmål</button><button class="tab" data-tab="foods">Matvarer</button><button class="tab" data-tab="backup">Sikkerhetskopi</button></div>
+ <div id="tab-goals">
+  <div class="settings-grid"><div class="field"><label>Kalorimål</label><input id="goalCalories" type="number" min="1"></div><div class="field"><label>Proteinmål (g)</label><input id="goalProtein" type="number" min="1" step="0.1"></div></div>
+  <div class="actions"><button class="primary" id="saveGoals">Lagre mål</button></div>
+ </div>
+ <div id="tab-foods" class="hidden">
+  <p class="small">Listen er importert fra Excel-arket ditt. Verdier med enhet «gram» er per gram; andre er per stykk eller porsjon.</p>
+  <button class="secondary" id="newFoodBtn">+ Ny matvare eller rett</button>
+  <div class="field" style="margin-top:12px"><input id="dbSearch" type="search" placeholder="Søk i matvarelisten"></div><div id="dbList"></div>
+ </div>
+ <div id="tab-backup" class="hidden">
+  <p class="small">Data lagres bare i denne nettleseren. Last ned en sikkerhetskopi dersom du bytter enhet eller nettleser.</p>
+  <div class="actions" style="justify-content:flex-start"><button class="secondary" id="exportBtn">Eksporter data</button><label class="secondary" style="cursor:pointer">Importer data<input id="importInput" type="file" accept="application/json" hidden></label></div>
+  <div class="actions" style="justify-content:flex-start"><button class="danger" id="resetBtn">Nullstill appen</button></div>
+ </div>
+ </div></div>
 
-        <div class="metric">
-          <div class="metric-row">
-            <span class="metric-name">Kalorier</span>
-            <span class="metric-value"><span id="caloriesTotal">0</span> <small>/ <span id="calorieGoalLabel">2200</span> kcal</small></span>
-          </div>
-          <div class="progress"><div id="calorieBar"></div></div>
-          <div class="remaining" id="calorieRemaining"></div>
-        </div>
-
-        <div class="metric">
-          <div class="metric-row">
-            <span class="metric-name">Proteiner</span>
-            <span class="metric-value"><span id="proteinTotal">0</span> <small>/ <span id="proteinGoalLabel">150</span> g</small></span>
-          </div>
-          <div class="progress protein"><div id="proteinBar"></div></div>
-          <div class="remaining" id="proteinRemaining"></div>
-        </div>
-      </div>
-
-      <button class="primary-button" id="openAddEntry">+ Legg til standardrett</button>
-
-      <section class="section-card">
-        <div class="section-title">
-          <h2>Dagens måltider</h2>
-          <span id="dayTotalMini"></span>
-        </div>
-        <div id="entriesContainer"></div>
-      </section>
-    </section>
-
-    <section id="dishesView" class="view">
-      <section class="section-card" style="margin-top:0">
-        <div class="section-title">
-          <div>
-            <h2>Standardretter</h2>
-            <span>Ferdig utregnede verdier per porsjon</span>
-          </div>
-        </div>
-        <button class="primary-button" id="openAddDish">+ Ny standardrett</button>
-        <div style="height:12px"></div>
-        <div id="dishList" class="dish-grid"></div>
-      </section>
-    </section>
-
-    <section id="settingsView" class="view">
-      <section class="section-card" style="margin-top:0">
-        <div class="section-title"><h2>Daglige mål</h2></div>
-        <div class="settings-list">
-          <div class="field">
-            <label for="goalCalories">Kalorier per dag</label>
-            <input id="goalCalories" type="number" min="1" step="1" inputmode="numeric" />
-          </div>
-          <div class="field">
-            <label for="goalProtein">Proteiner per dag (gram)</label>
-            <input id="goalProtein" type="number" min="1" step="1" inputmode="decimal" />
-          </div>
-          <button class="primary-button" id="saveGoals">Lagre mål</button>
-        </div>
-      </section>
-
-      <section class="section-card">
-        <div class="section-title"><h2>Sikkerhetskopi</h2></div>
-        <p class="settings-note">Opplysningene lagres lokalt i nettleseren på denne enheten. Eksporter en sikkerhetskopi før du bytter enhet eller tømmer nettleserdata.</p>
-        <div class="data-actions">
-          <button class="secondary-button" id="exportData">Eksporter</button>
-          <button class="secondary-button" id="importData">Importer</button>
-          <input id="importFile" type="file" accept="application/json" hidden />
-        </div>
-      </section>
-
-      <section class="section-card">
-        <div class="section-title"><h2>Nullstill</h2></div>
-        <button class="danger-button" id="resetApp">Slett alle registreringer</button>
-      </section>
-    </section>
-  </main>
-
-  <nav class="bottom-nav" aria-label="Hovedmeny">
-    <button class="nav-button active" data-view="homeView">Oversikt</button>
-    <button class="nav-button" data-view="dishesView">Standardretter</button>
-    <button class="nav-button" data-view="settingsView">Innstillinger</button>
-  </nav>
-
-  <dialog id="entryDialog">
-    <form class="modal" id="entryForm">
-      <div class="modal-head">
-        <h2>Legg til standardrett</h2>
-        <button type="button" class="close-button" data-close="entryDialog">×</button>
-      </div>
-      <div class="field">
-        <label for="entryDish">Standardrett</label>
-        <select id="entryDish" required></select>
-      </div>
-      <div class="two-col">
-        <div class="field">
-          <label for="entryMeal">Måltid</label>
-          <select id="entryMeal" required>
-            <option>Frokost</option>
-            <option>Lunsj</option>
-            <option>Middag</option>
-            <option>Kveldsmat</option>
-            <option>Mellommåltid</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="entryPortions">Antall porsjoner</label>
-          <input id="entryPortions" type="number" min="0.1" step="0.1" value="1" required inputmode="decimal" />
-        </div>
-      </div>
-      <div class="help" id="entryPreview"></div>
-      <div class="modal-actions">
-        <button type="button" class="secondary-button" data-close="entryDialog">Avbryt</button>
-        <button type="submit" class="primary-button">Legg til</button>
-      </div>
-    </form>
-  </dialog>
-
-  <dialog id="dishDialog">
-    <form class="modal" id="dishForm">
-      <div class="modal-head">
-        <h2 id="dishDialogTitle">Ny standardrett</h2>
-        <button type="button" class="close-button" data-close="dishDialog">×</button>
-      </div>
-      <input id="dishId" type="hidden" />
-      <div class="field">
-        <label for="dishName">Navn på retten</label>
-        <input id="dishName" type="text" maxlength="60" required placeholder="For eksempel havregrøt" />
-      </div>
-      <div class="two-col">
-        <div class="field">
-          <label for="dishCalories">Kalorier</label>
-          <input id="dishCalories" type="number" min="0" step="0.1" required inputmode="decimal" />
-        </div>
-        <div class="field">
-          <label for="dishProtein">Proteiner (g)</label>
-          <input id="dishProtein" type="number" min="0" step="0.1" required inputmode="decimal" />
-        </div>
-      </div>
-      <div class="field">
-        <label for="dishPortion">Porsjonsbeskrivelse</label>
-        <input id="dishPortion" type="text" maxlength="50" placeholder="For eksempel 1 bolle eller 1 stk" />
-        <div class="help">Tallene ovenfor skal gjelde for én porsjon.</div>
-      </div>
-      <div class="modal-actions">
-        <button type="button" class="secondary-button" data-close="dishDialog">Avbryt</button>
-        <button type="submit" class="primary-button">Lagre rett</button>
-      </div>
-    </form>
-  </dialog>
-
-  <div class="toast" id="toast"></div>
-
-  <script>
-    const STORAGE_KEY = 'kostholdApp_v1_0';
-    const defaultData = {
-      goals: { calories: 2200, protein: 150 },
-      dishes: [
-        { id: 'havrelapp', name: 'Havrelapp', calories: 57.5, protein: 3.5, portion: '1 stk' },
-        { id: 'yoghurtblanding', name: 'Yoghurtblanding', calories: 304.8, protein: 20.4, portion: '1 porsjon' },
-        { id: 'omelett', name: 'Omelett', calories: 748.2, protein: 37.7, portion: '1 hel rett' }
-      ],
-      days: {}
-    };
-
-    let data = loadData();
-    let selectedDate = todayKey();
-
-    const mealOrder = ['Frokost', 'Lunsj', 'Middag', 'Kveldsmat', 'Mellommåltid'];
-    const $ = id => document.getElementById(id);
-
-    function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
-    function loadData() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-        if (!saved) return clone(defaultData);
-        return {
-          goals: { ...defaultData.goals, ...(saved.goals || {}) },
-          dishes: Array.isArray(saved.dishes) ? saved.dishes : clone(defaultData.dishes),
-          days: saved.days && typeof saved.days === 'object' ? saved.days : {}
-        };
-      } catch { return clone(defaultData); }
-    }
-    function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
-    function todayKey() {
-      const d = new Date();
-      return [d.getFullYear(), String(d.getMonth()+1).padStart(2,'0'), String(d.getDate()).padStart(2,'0')].join('-');
-    }
-    function dateFromKey(key) { const [y,m,d] = key.split('-').map(Number); return new Date(y,m-1,d); }
-    function dateKey(date) { return [date.getFullYear(), String(date.getMonth()+1).padStart(2,'0'), String(date.getDate()).padStart(2,'0')].join('-'); }
-    function formatDate(key) {
-      const d = dateFromKey(key);
-      const opts = { weekday:'long', day:'numeric', month:'long', year: d.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined };
-      const text = d.toLocaleDateString('nb-NO', opts);
-      return text.charAt(0).toUpperCase() + text.slice(1);
-    }
-    function round1(n) { return Math.round((Number(n) + Number.EPSILON) * 10) / 10; }
-    function fmt(n) { const x = round1(n); return Number.isInteger(x) ? String(x) : x.toLocaleString('nb-NO', {maximumFractionDigits:1}); }
-    function uid() { return (crypto.randomUUID ? crypto.randomUUID() : Date.now()+'_'+Math.random().toString(16).slice(2)); }
-    function dayEntries() { return data.days[selectedDate] || []; }
-    function totals(entries = dayEntries()) {
-      return entries.reduce((a,e) => ({ calories: a.calories + Number(e.calories), protein: a.protein + Number(e.protein) }), {calories:0, protein:0});
-    }
-    function showToast(message) {
-      $('toast').textContent = message;
-      $('toast').classList.add('show');
-      clearTimeout(showToast.timer);
-      showToast.timer = setTimeout(() => $('toast').classList.remove('show'), 1800);
-    }
-
-    function renderAll() {
-      renderHome();
-      renderDishes();
-      renderSettings();
-      populateDishSelect();
-    }
-
-    function renderHome() {
-      $('dateLabel').textContent = formatDate(selectedDate);
-      $('datePicker').value = selectedDate;
-      const entries = dayEntries();
-      const total = totals(entries);
-      const cg = Number(data.goals.calories) || 1;
-      const pg = Number(data.goals.protein) || 1;
-
-      $('caloriesTotal').textContent = fmt(total.calories);
-      $('proteinTotal').textContent = fmt(total.protein);
-      $('calorieGoalLabel').textContent = fmt(cg);
-      $('proteinGoalLabel').textContent = fmt(pg);
-      $('calorieBar').style.width = Math.min(100, total.calories/cg*100) + '%';
-      $('proteinBar').style.width = Math.min(100, total.protein/pg*100) + '%';
-      $('calorieRemaining').textContent = total.calories <= cg ? `${fmt(cg-total.calories)} kcal igjen` : `${fmt(total.calories-cg)} kcal over målet`;
-      $('proteinRemaining').textContent = total.protein <= pg ? `${fmt(pg-total.protein)} g protein igjen` : `${fmt(total.protein-pg)} g over målet`;
-      $('entryCount').textContent = `${entries.length} ${entries.length === 1 ? 'registrering' : 'registreringer'}`;
-      $('dayTotalMini').textContent = `${fmt(total.calories)} kcal · ${fmt(total.protein)} g`;
-
-      const container = $('entriesContainer');
-      if (!entries.length) {
-        container.innerHTML = '<div class="empty">Ingen mat er registrert denne dagen.</div>';
-        return;
-      }
-
-      container.innerHTML = mealOrder.map(meal => {
-        const mealEntries = entries.filter(e => e.meal === meal);
-        if (!mealEntries.length) return '';
-        const mt = totals(mealEntries);
-        return `<div class="meal-block">
-          <div class="meal-header"><strong>${escapeHtml(meal)}</strong><span class="meal-total">${fmt(mt.calories)} kcal · ${fmt(mt.protein)} g protein</span></div>
-          ${mealEntries.map(e => `<div class="entry">
-            <div><div class="entry-name">${escapeHtml(e.name)}</div><div class="entry-info">${fmt(e.portions)} ${e.portions == 1 ? 'porsjon' : 'porsjoner'} · ${fmt(e.calories)} kcal · ${fmt(e.protein)} g protein</div></div>
-            <div class="entry-actions"><button class="small-button danger" onclick="deleteEntry('${e.id}')">Slett</button></div>
-          </div>`).join('')}
-        </div>`;
-      }).join('');
-    }
-
-    function renderDishes() {
-      const list = $('dishList');
-      if (!data.dishes.length) {
-        list.innerHTML = '<div class="empty">Du har ingen standardretter ennå.</div>';
-        return;
-      }
-      list.innerHTML = [...data.dishes].sort((a,b)=>a.name.localeCompare(b.name,'nb')).map(d => `
-        <article class="dish-card">
-          <div>
-            <h3>${escapeHtml(d.name)}</h3>
-            <p>${fmt(d.calories)} kcal · ${fmt(d.protein)} g protein${d.portion ? ` · ${escapeHtml(d.portion)}` : ''}</p>
-          </div>
-          <div class="actions">
-            <button class="small-button" onclick="editDish('${d.id}')">Endre</button>
-            <button class="small-button danger" onclick="deleteDish('${d.id}')">Slett</button>
-          </div>
-        </article>`).join('');
-    }
-
-    function renderSettings() {
-      $('goalCalories').value = data.goals.calories;
-      $('goalProtein').value = data.goals.protein;
-    }
-
-    function populateDishSelect() {
-      const select = $('entryDish');
-      const current = select.value;
-      select.innerHTML = data.dishes.length
-        ? [...data.dishes].sort((a,b)=>a.name.localeCompare(b.name,'nb')).map(d => `<option value="${d.id}">${escapeHtml(d.name)} – ${fmt(d.calories)} kcal / ${fmt(d.protein)} g</option>`).join('')
-        : '<option value="">Opprett en standardrett først</option>';
-      if ([...select.options].some(o => o.value === current)) select.value = current;
-      updateEntryPreview();
-    }
-
-    function updateEntryPreview() {
-      const dish = data.dishes.find(d => d.id === $('entryDish').value);
-      const portions = Number($('entryPortions').value) || 0;
-      $('entryPreview').textContent = dish ? `Legger til ${fmt(dish.calories*portions)} kcal og ${fmt(dish.protein*portions)} g protein.` : '';
-    }
-
-    function escapeHtml(value) {
-      return String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-    }
-
-    function openDishDialog(dish = null) {
-      $('dishDialogTitle').textContent = dish ? 'Endre standardrett' : 'Ny standardrett';
-      $('dishId').value = dish?.id || '';
-      $('dishName').value = dish?.name || '';
-      $('dishCalories').value = dish?.calories ?? '';
-      $('dishProtein').value = dish?.protein ?? '';
-      $('dishPortion').value = dish?.portion || '';
-      $('dishDialog').showModal();
-      setTimeout(() => $('dishName').focus(), 50);
-    }
-
-    window.editDish = id => {
-      const dish = data.dishes.find(d => d.id === id);
-      if (dish) openDishDialog(dish);
-    };
-    window.deleteDish = id => {
-      const dish = data.dishes.find(d => d.id === id);
-      if (!dish || !confirm(`Slette standardretten «${dish.name}»? Tidligere dagsregistreringer beholdes.`)) return;
-      data.dishes = data.dishes.filter(d => d.id !== id);
-      saveData(); renderAll(); showToast('Standardrett slettet');
-    };
-    window.deleteEntry = id => {
-      data.days[selectedDate] = dayEntries().filter(e => e.id !== id);
-      if (!data.days[selectedDate].length) delete data.days[selectedDate];
-      saveData(); renderHome(); showToast('Registrering slettet');
-    };
-
-    $('openAddEntry').addEventListener('click', () => {
-      if (!data.dishes.length) { switchView('dishesView'); openDishDialog(); return; }
-      $('entryPortions').value = 1;
-      updateEntryPreview();
-      $('entryDialog').showModal();
-    });
-    $('openAddDish').addEventListener('click', () => openDishDialog());
-    $('entryDish').addEventListener('change', updateEntryPreview);
-    $('entryPortions').addEventListener('input', updateEntryPreview);
-
-    $('entryForm').addEventListener('submit', event => {
-      event.preventDefault();
-      const dish = data.dishes.find(d => d.id === $('entryDish').value);
-      const portions = Number($('entryPortions').value);
-      if (!dish || !Number.isFinite(portions) || portions <= 0) return;
-      const entry = {
-        id: uid(), dishId: dish.id, name: dish.name, meal: $('entryMeal').value, portions,
-        calories: round1(dish.calories * portions), protein: round1(dish.protein * portions), createdAt: new Date().toISOString()
-      };
-      if (!data.days[selectedDate]) data.days[selectedDate] = [];
-      data.days[selectedDate].push(entry);
-      saveData(); $('entryDialog').close(); renderHome(); showToast('Retten er lagt til');
-    });
-
-    $('dishForm').addEventListener('submit', event => {
-      event.preventDefault();
-      const id = $('dishId').value || uid();
-      const dish = {
-        id,
-        name: $('dishName').value.trim(),
-        calories: round1(Number($('dishCalories').value)),
-        protein: round1(Number($('dishProtein').value)),
-        portion: $('dishPortion').value.trim()
-      };
-      if (!dish.name || !Number.isFinite(dish.calories) || !Number.isFinite(dish.protein)) return;
-      const idx = data.dishes.findIndex(d => d.id === id);
-      if (idx >= 0) data.dishes[idx] = dish; else data.dishes.push(dish);
-      saveData(); $('dishDialog').close(); renderAll(); showToast(idx >= 0 ? 'Standardrett oppdatert' : 'Standardrett lagt til');
-    });
-
-    document.querySelectorAll('[data-close]').forEach(btn => btn.addEventListener('click', () => $(btn.dataset.close).close()));
-
-    function shiftDay(amount) {
-      const d = dateFromKey(selectedDate); d.setDate(d.getDate()+amount); selectedDate = dateKey(d); renderHome();
-    }
-    $('prevDay').addEventListener('click', () => shiftDay(-1));
-    $('nextDay').addEventListener('click', () => shiftDay(1));
-    $('todayButton').addEventListener('click', () => { selectedDate = todayKey(); switchView('homeView'); renderHome(); });
-    $('datePickerButton').addEventListener('click', () => { if ($('datePicker').showPicker) $('datePicker').showPicker(); else $('datePicker').click(); });
-    $('datePicker').addEventListener('change', e => { if (e.target.value) { selectedDate=e.target.value; renderHome(); } });
-
-    function switchView(id) {
-      document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === id));
-      document.querySelectorAll('.nav-button').forEach(b => b.classList.toggle('active', b.dataset.view === id));
-      window.scrollTo({top:0, behavior:'smooth'});
-    }
-    document.querySelectorAll('.nav-button').forEach(btn => btn.addEventListener('click', () => switchView(btn.dataset.view)));
-
-    $('saveGoals').addEventListener('click', () => {
-      const calories = Number($('goalCalories').value), protein = Number($('goalProtein').value);
-      if (calories <= 0 || protein <= 0) { alert('Målene må være større enn null.'); return; }
-      data.goals = { calories: round1(calories), protein: round1(protein) };
-      saveData(); renderHome(); showToast('Målene er lagret');
-    });
-
-    $('exportData').addEventListener('click', () => {
-      const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href=url; a.download=`kosthold-sikkerhetskopi-${todayKey()}.json`; a.click();
-      URL.revokeObjectURL(url); showToast('Sikkerhetskopi eksportert');
-    });
-    $('importData').addEventListener('click', () => $('importFile').click());
-    $('importFile').addEventListener('change', async e => {
-      const file=e.target.files[0]; if(!file) return;
-      try {
-        const imported=JSON.parse(await file.text());
-        if(!imported.goals || !Array.isArray(imported.dishes) || typeof imported.days!=='object') throw new Error();
-        if(!confirm('Importere sikkerhetskopien og erstatte dataene som ligger i appen nå?')) return;
-        data=imported; saveData(); renderAll(); showToast('Sikkerhetskopi importert');
-      } catch { alert('Filen kunne ikke importeres.'); }
-      e.target.value='';
-    });
-    $('resetApp').addEventListener('click', () => {
-      if (!confirm('Er du sikker? Alle dagsregistreringer slettes. Standardrettene og målene beholdes.')) return;
-      data.days={}; saveData(); renderHome(); showToast('Alle registreringer er slettet');
-    });
-
-    renderAll();
-  </script>
-</body>
-</html>
+<div class="modal" id="foodModal"><div class="sheet">
+ <div class="sheet-head"><h2 id="foodModalTitle">Ny matvare</h2><button class="close" data-close="foodModal">×</button></div>
+ <input id="foodId" type="hidden">
+ <div class="field"><label>Navn</label><input id="foodName"></div>
+ <div class="field"><label>Enhet</label><select id="foodUnit"><option value="gram">Gram</option><option value="porsjon/stk">Stykk eller porsjon</option></select></div>
+ <div class="settings-grid"><div class="field"><label id="foodCalLabel">Kalorier per gram</label><input id="foodCalories" type="number" min="0" step="0.001"></div><div class="field"><label id="foodProtLabel">Protein per gram</label><input id="foodProtein" type="number" min="0" step="0.001"></div></div>
+ <div class="actions"><button class="danger hidden" id="deleteFood">Slett</button><button class="secondary" data-close="foodModal">Avbryt</button><button class="primary" id="saveFood">Lagre</button></div>
+ </div></div>
+<script>
+const IMPORTED_FOODS=[{"id": "excel-2", "name": "Speilegg (stk)", "calories": 99.0, "protein": 6.7, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-3", "name": "Ketchup (20g)", "calories": 22.0, "protein": 0.2, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-4", "name": "Ost (stk)", "calories": 10.4, "protein": 1.16, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-5", "name": "Brød (stk)", "calories": 83.0, "protein": 2.673, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-6", "name": "Spekeskinke (stk)", "calories": 16.73, "protein": 1.99, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-7", "name": "Shake", "calories": 132.0, "protein": 31.45, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-8", "name": "Skinke(stk)", "calories": 7.92, "protein": 1.6, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-9", "name": "Smør (pr skive)", "calories": 18.0, "protein": 0.0, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-10", "name": "Egg rå (stk)", "calories": 82.0, "protein": 7.2, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-11", "name": "Lettmelk (glass)", "calories": 37.0, "protein": 3.7, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-12", "name": "Cottage cheese", "calories": 0.79, "protein": 0.13, "unit": "gram", "source": "Excel"}, {"id": "excel-13", "name": "Hvetemel", "calories": 3.43, "protein": 0.121, "unit": "gram", "source": "Excel"}, {"id": "excel-14", "name": "Havremel", "calories": 3.7, "protein": 0.12, "unit": "gram", "source": "Excel"}, {"id": "excel-15", "name": "Eple", "calories": 81.0, "protein": 0.5, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-16", "name": "Melange", "calories": 6.75, "protein": 0.0, "unit": "gram", "source": "Excel"}, {"id": "excel-17", "name": "Syltetøy", "calories": 1.76, "protein": 0.02, "unit": "gram", "source": "Excel"}, {"id": "excel-18", "name": "Melk(glass)", "calories": 66.0, "protein": 8.0, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-19", "name": "Lapper", "calories": 57.5, "protein": 3.5, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-20", "name": "Gresk youghurt", "calories": 0.71, "protein": 0.083, "unit": "gram", "source": "Excel"}, {"id": "excel-21", "name": "Vanliljekesam", "calories": 0.65, "protein": 0.095, "unit": "gram", "source": "Excel"}, {"id": "excel-22", "name": "Bær", "calories": 0.5, "protein": 0.01, "unit": "gram", "source": "Excel"}, {"id": "excel-23", "name": "Havregryn", "calories": 3.71, "protein": 0.12, "unit": "gram", "source": "Excel"}, {"id": "excel-24", "name": "Rosiner", "calories": 3.16, "protein": 0.03, "unit": "gram", "source": "Excel"}, {"id": "excel-25", "name": "Youghurblanding", "calories": 304.75, "protein": 20.41, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-26", "name": "Knekkerød", "calories": 53.0, "protein": 1.7, "unit": "gram", "source": "Excel"}, {"id": "excel-27", "name": "Philadelphia light", "calories": 1.76, "protein": 0.021, "unit": "gram", "source": "Excel"}, {"id": "excel-28", "name": "Fetaost", "calories": 5.39, "protein": 0.1, "unit": "gram", "source": "Excel"}, {"id": "excel-29", "name": "Philadelphia", "calories": 2.81, "protein": 0.061, "unit": "gram", "source": "Excel"}, {"id": "excel-30", "name": "Omelett", "calories": 748.19, "protein": 37.746, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-31", "name": "Havregrøt", "calories": 0.75, "protein": 0.048, "unit": "gram", "source": "Excel"}, {"id": "excel-32", "name": "Spagetti bollognese", "calories": 700.0, "protein": 36.0, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-33", "name": "Banan (stk)", "calories": 100.0, "protein": 1.4, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-34", "name": "Makrell i tomat(pr skive)", "calories": 103.0, "protein": 5.3, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-35", "name": "Majones (pr skive)", "calories": 49.0, "protein": 0.1, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-36", "name": "Fiskeburger", "calories": 163.9, "protein": 17.6, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-37", "name": "Ha,burgerbrød", "calories": 182.65, "protein": 6.435, "unit": "gram", "source": "Excel"}, {"id": "excel-38", "name": "Polarbrød", "calories": 156.87, "protein": 12.89, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-39", "name": "Laksefilet (stk)", "calories": 238.0, "protein": 23.7, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-40", "name": "Spagetti (100 g kokst)", "calories": 150.0, "protein": 6.0, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-41", "name": "Pesto (spiseskje)", "calories": 93.0, "protein": 0.9, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-42", "name": "Biola (glass)", "calories": 102.0, "protein": 6.0, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-43", "name": "Yt-pudding", "calories": 144.4, "protein": 20.9, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-44", "name": "Avokado", "calories": 1.91, "protein": 0.018, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-45", "name": "Yougurt Dobbel", "calories": 52.0, "protein": 5.3, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-46", "name": "Youghurt vanlig", "calories": 83.0, "protein": 3.9, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-47", "name": "Sammalt rug", "calories": 3.48, "protein": 0.11, "unit": "gram", "source": "Excel"}, {"id": "excel-48", "name": "Sukker", "calories": 4.0, "protein": 0.0, "unit": "gram", "source": "Excel"}, {"id": "excel-49", "name": "Rundstykker", "calories": 230.0, "protein": 7.88, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-50", "name": "Posetomastsuppe", "calories": 0.48, "protein": 0.012, "unit": "gram", "source": "Excel"}, {"id": "excel-51", "name": "Cremw fraise", "calories": 1.84, "protein": 0.029, "unit": "gram", "source": "Excel"}, {"id": "excel-52", "name": "Olje", "calories": 8.83, "protein": 0.0, "unit": "gram", "source": "Excel"}, {"id": "excel-53", "name": "Serranoskinke", "calories": 2.4, "protein": 0.31, "unit": "gram", "source": "Excel"}, {"id": "excel-54", "name": "Hvit pizza (stk)", "calories": 161.8, "protein": 12.4, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-55", "name": "Omelett", "calories": 474.7, "protein": 31.0, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-56", "name": "Biola og korn", "calories": 170.7, "protein": 7.5, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-57", "name": "Salami God og mager (stk)", "calories": 12.0, "protein": 1.9, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-58", "name": "Kjøperundstykker", "calories": 175.56, "protein": 7.7, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-59", "name": "Mandler", "calories": 6.01, "protein": 0.212, "unit": "gram", "source": "Excel"}, {"id": "excel-60", "name": "Fiskepinner (stk)", "calories": 45.0, "protein": 2.8, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-61", "name": "Ris(kokt)", "calories": 1.15, "protein": 0.024, "unit": "gram", "source": "Excel"}, {"id": "excel-62", "name": "Majones (gr)", "calories": 4.78, "protein": 0.01, "unit": "gram", "source": "Excel"}, {"id": "excel-63", "name": "Kyllingfilet", "calories": 1.53, "protein": 0.277, "unit": "gram", "source": "Excel"}, {"id": "excel-64", "name": "Tortillalefse medium orginal", "calories": 3.02, "protein": 0.083, "unit": "gram", "source": "Excel"}, {"id": "excel-65", "name": "Mais", "calories": 0.88, "protein": 0.026, "unit": "gram", "source": "Excel"}, {"id": "excel-66", "name": "Karbonadedeig", "calories": 1.33, "protein": 0.22, "unit": "gram", "source": "Excel"}, {"id": "excel-67", "name": "Poteter", "calories": 0.8, "protein": 0.019, "unit": "gram", "source": "Excel"}, {"id": "excel-68", "name": "Kokt pasta", "calories": 1.5, "protein": 0.0, "unit": "gram", "source": "Excel"}, {"id": "excel-69", "name": "Leverpostei", "calories": 2.25, "protein": 0.1, "unit": "gram", "source": "Excel"}, {"id": "excel-70", "name": "Pære", "calories": 90.0, "protein": 0.8, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-71", "name": "Klementin", "calories": 32.0, "protein": 0.6, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-72", "name": "Makrell i tomat boks", "calories": 437.0, "protein": 22.0, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-73", "name": "Ost vanlig(stk)", "calories": 13.76, "protein": 1.08, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-74", "name": "Granola (40 g)", "calories": 152.0, "protein": 4.0, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-75", "name": "Salami vanlig", "calories": 4.2, "protein": 0.19, "unit": "gram", "source": "Excel"}, {"id": "excel-76", "name": "Yt-youghurt", "calories": 0.67, "protein": 0.092, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-77", "name": "Entrecotte", "calories": 1.86, "protein": 0.206, "unit": "gram", "source": "Excel"}, {"id": "excel-78", "name": "Bernaise saus", "calories": 0.48, "protein": 0.012, "unit": "gram", "source": "Excel"}, {"id": "excel-79", "name": "Hjemmelaget brød", "calories": 2.54, "protein": 0.081, "unit": "gram", "source": "Excel"}, {"id": "excel-80", "name": "Vanlig grillpølse stk", "calories": 118.0, "protein": 6.6, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-81", "name": "amburgerbrød fint", "calories": 240.0, "protein": 6.3, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-82", "name": "Ny shake", "calories": 113.0, "protein": 24.0, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-83", "name": "Kyllingsaus", "calories": 11.0, "protein": 0.15, "unit": "gram", "source": "Excel"}, {"id": "excel-84", "name": "Lettrømme (ts)", "calories": 9.0, "protein": 0.14, "unit": "gram", "source": "Excel"}, {"id": "excel-85", "name": "Tortilla havre", "calories": 112.0, "protein": 3.2, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-86", "name": "Grøt", "calories": 1.07, "protein": 0.085, "unit": "porsjon/stk", "source": "Excel"}, {"id": "excel-87", "name": "Toro sjokoladekake", "calories": 3.8, "protein": 0.036, "unit": "gram", "source": "Excel"}];
+const MEALS=['Frokost','Lunsj','Middag','Kveldsmat','Mellommåltid'];
+const KEY='kosthold-app-v2';
+const today=()=>new Date().toLocaleDateString('en-CA');
+const uid=()=>crypto.randomUUID?.()||Date.now()+'-'+Math.random().toString(16).slice(2);
+const fmt=(n,d=0)=>Number(n||0).toLocaleString('nb-NO',{maximumFractionDigits:d,minimumFractionDigits:d});
+let state=load(); let selectedFood=null;
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.foods&&s.days)return s}catch(e){}return {version:2,goals:{calories:2200,protein:150},foods:IMPORTED_FOODS,days:{}}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal(m.id)}));
+const dateInput=document.getElementById('dateInput');dateInput.value=today();dateInput.onchange=render;document.getElementById('todayBtn').onclick=()=>{dateInput.value=today();render()};
+function entries(){return state.days[dateInput.value]||[]}
+function nutrients(e){const f=state.foods.find(x=>x.id===e.foodId);if(!f)return {cal:0,prot:0};return {cal:f.calories*e.quantity,prot:f.protein*e.quantity}}
+function totals(){return entries().reduce((a,e)=>{const n=nutrients(e);a.cal+=n.cal;a.prot+=n.prot;return a},{cal:0,prot:0})}
+function progress(id,used,goal){const pct=goal?used/goal*100:0;document.getElementById(id+'Used').textContent=fmt(used,id==='prot'?1:0);document.getElementById(id+'Goal').textContent=fmt(goal,id==='prot'?1:0);document.getElementById(id+'Percent').textContent=fmt(pct,0)+' %';const rem=goal-used;document.getElementById(id+'Remaining').textContent=rem>=0?`${fmt(rem,id==='prot'?1:0)} ${id==='cal'?'kcal':'g'} igjen til målet`:`${fmt(Math.abs(rem),id==='prot'?1:0)} ${id==='cal'?'kcal':'g'} over målet`;const bar=document.getElementById(id+'Bar');bar.classList.toggle('over',pct>100);bar.firstElementChild.style.width=Math.min(pct,100)+'%'}
+function render(){const t=totals();progress('cal',t.cal,state.goals.calories);progress('prot',t.prot,state.goals.protein);document.getElementById('dayCount').textContent=entries().length?entries().length+' registreringer':'';const box=document.getElementById('meals');box.innerHTML='';MEALS.forEach(meal=>{const list=entries().filter(e=>e.meal===meal);const mt=list.reduce((a,e)=>{const n=nutrients(e);a.cal+=n.cal;a.prot+=n.prot;return a},{cal:0,prot:0});const sec=document.createElement('section');sec.className='meal';sec.innerHTML=`<div class="meal-head"><h3>${meal}</h3><div class="meal-total">${fmt(mt.cal)} kcal<br>${fmt(mt.prot,1)} g protein</div></div><div class="items">${list.length?'':'<div class="empty">Ingen mat registrert</div>'}</div><button class="meal-add">+ Legg til i ${meal.toLowerCase()}</button>`;const items=sec.querySelector('.items');list.forEach(e=>{const f=state.foods.find(x=>x.id===e.foodId);const n=nutrients(e);const row=document.createElement('div');row.className='item';row.innerHTML=`<div><div class="item-name">${escapeHtml(f?.name||'Slettet matvare')}</div><div class="item-sub">${fmt(e.quantity,e.quantity%1?1:0)} ${f?.unit==='gram'?'g':'stk/porsjon'}</div></div><div class="item-values">${fmt(n.cal)} kcal<br>${fmt(n.prot,1)} g protein</div><button class="trash" title="Slett">×</button>`;row.querySelector('.trash').onclick=()=>removeEntry(e.id);items.appendChild(row)});sec.querySelector('.meal-add').onclick=()=>showEntry(meal);box.appendChild(sec)})}
+function escapeHtml(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function removeEntry(id){const d=dateInput.value;state.days[d]=(state.days[d]||[]).filter(e=>e.id!==id);if(!state.days[d].length)delete state.days[d];save();render()}
+function showEntry(meal='Frokost'){selectedFood=null;document.getElementById('mealSelect').innerHTML=MEALS.map(m=>`<option ${m===meal?'selected':''}>${m}</option>`).join('');document.getElementById('foodSearch').value='';document.getElementById('quantityInput').value='';document.getElementById('quantityArea').classList.add('hidden');document.getElementById('saveEntry').disabled=true;renderFoodOptions();openModal('entryModal');setTimeout(()=>document.getElementById('foodSearch').focus(),50)}
+function renderFoodOptions(){const q=document.getElementById('foodSearch').value.trim().toLowerCase();const list=state.foods.filter(f=>f.name.toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name,'nb')).slice(0,100);document.getElementById('foodList').innerHTML=list.map(f=>`<button class="food-option ${selectedFood?.id===f.id?'selected':''}" data-id="${f.id}"><span><strong>${escapeHtml(f.name)}</strong><small>${f.unit==='gram'?'Per gram':'Per stykk/porsjon'}</small></span><small>${fmt(f.calories,f.unit==='gram'?2:0)} kcal · ${fmt(f.protein,f.unit==='gram'?2:1)} g</small></button>`).join('')||'<div class="empty">Ingen treff</div>';document.querySelectorAll('.food-option').forEach(b=>b.onclick=()=>selectFood(b.dataset.id))}
+function selectFood(id){selectedFood=state.foods.find(f=>f.id===id);renderFoodOptions();const q=document.getElementById('quantityInput');q.value=selectedFood.unit==='gram'?100:1;document.getElementById('quantityLabel').textContent=selectedFood.unit==='gram'?'Mengde i gram':'Antall stykk eller porsjoner';q.step=selectedFood.unit==='gram'?'1':'0.25';document.getElementById('quantityArea').classList.remove('hidden');updatePreview();document.getElementById('saveEntry').disabled=false}
+document.getElementById('foodSearch').oninput=renderFoodOptions;document.getElementById('quantityInput').oninput=updatePreview;
+function updatePreview(){if(!selectedFood)return;const q=Number(document.getElementById('quantityInput').value||0);document.getElementById('preview').textContent=`Dette gir ${fmt(selectedFood.calories*q)} kcal og ${fmt(selectedFood.protein*q,1)} g protein.`;document.getElementById('saveEntry').disabled=!(q>0)}
+document.getElementById('saveEntry').onclick=()=>{const q=Number(document.getElementById('quantityInput').value);if(!selectedFood||!(q>0))return;const d=dateInput.value;state.days[d]??=[];state.days[d].push({id:uid(),meal:document.getElementById('mealSelect').value,foodId:selectedFood.id,quantity:q});save();closeModal('entryModal');render()};
+document.getElementById('addBtn').onclick=()=>showEntry();
+// settings
+function showSettings(){document.getElementById('goalCalories').value=state.goals.calories;document.getElementById('goalProtein').value=state.goals.protein;renderDb();openModal('settingsModal')}
+document.getElementById('settingsBtn').onclick=showSettings;document.getElementById('saveGoals').onclick=()=>{state.goals.calories=Number(document.getElementById('goalCalories').value)||2200;state.goals.protein=Number(document.getElementById('goalProtein').value)||150;save();render();closeModal('settingsModal')};
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===t));['goals','foods','backup'].forEach(x=>document.getElementById('tab-'+x).classList.toggle('hidden',x!==t.dataset.tab))});
+function renderDb(){const q=document.getElementById('dbSearch').value?.toLowerCase()||'';const rows=state.foods.filter(f=>f.name.toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name,'nb'));document.getElementById('dbList').innerHTML=rows.map(f=>`<div class="db-row"><div><strong>${escapeHtml(f.name)}</strong><div class="db-meta">${fmt(f.calories,f.unit==='gram'?3:1)} kcal og ${fmt(f.protein,f.unit==='gram'?3:1)} g protein per ${f.unit==='gram'?'gram':'stk/porsjon'}</div></div><button class="secondary" data-edit="${f.id}">Rediger</button></div>`).join('');document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editFood(b.dataset.edit))}
+document.getElementById('dbSearch').oninput=renderDb;document.getElementById('newFoodBtn').onclick=()=>editFood();document.getElementById('foodUnit').onchange=updateFoodLabels;
+function updateFoodLabels(){const gram=document.getElementById('foodUnit').value==='gram';document.getElementById('foodCalLabel').textContent='Kalorier per '+(gram?'gram':'stykk/porsjon');document.getElementById('foodProtLabel').textContent='Protein per '+(gram?'gram':'stykk/porsjon')}
+function editFood(id=''){const f=state.foods.find(x=>x.id===id);document.getElementById('foodModalTitle').textContent=f?'Rediger matvare':'Ny matvare eller rett';document.getElementById('foodId').value=f?.id||'';document.getElementById('foodName').value=f?.name||'';document.getElementById('foodUnit').value=f?.unit||'gram';document.getElementById('foodCalories').value=f?.calories??'';document.getElementById('foodProtein').value=f?.protein??'';document.getElementById('deleteFood').classList.toggle('hidden',!f);updateFoodLabels();openModal('foodModal')}
+document.getElementById('saveFood').onclick=()=>{const id=document.getElementById('foodId').value;const f={id:id||uid(),name:document.getElementById('foodName').value.trim(),unit:document.getElementById('foodUnit').value,calories:Number(document.getElementById('foodCalories').value),protein:Number(document.getElementById('foodProtein').value),source:id?'Egen':'Egen'};if(!f.name||!Number.isFinite(f.calories)||!Number.isFinite(f.protein))return alert('Fyll inn navn, kalorier og protein.');const i=state.foods.findIndex(x=>x.id===id);if(i>=0)state.foods[i]=f;else state.foods.push(f);save();renderDb();closeModal('foodModal')};
+document.getElementById('deleteFood').onclick=()=>{const id=document.getElementById('foodId').value;if(!confirm('Slette denne matvaren? Tidligere registreringer med matvaren vil ikke lenger kunne beregnes.'))return;state.foods=state.foods.filter(f=>f.id!==id);save();renderDb();closeModal('foodModal');render()};
+// backup
+document.getElementById('exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='kosthold-sikkerhetskopi-'+today()+'.json';a.click();URL.revokeObjectURL(a.href)};
+document.getElementById('importInput').onchange=async e=>{try{const x=JSON.parse(await e.target.files[0].text());if(!x.foods||!x.days||!x.goals)throw 0;state=x;save();render();renderDb();alert('Sikkerhetskopien er importert.')}catch{alert('Filen kunne ikke importeres.')}};
+document.getElementById('resetBtn').onclick=()=>{if(confirm('Nullstille hele appen og slette alle registreringer?')){state={version:2,goals:{calories:2200,protein:150},foods:IMPORTED_FOODS,days:{}};save();render();renderDb();closeModal('settingsModal')}};
+render();
+</script>
+</body></html>
