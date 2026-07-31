@@ -1,10 +1,10 @@
-const CACHE_NAME = "kosthold-v2-1-pwa-1";
+const CACHE_NAME = "kosthold-v2-1-pwa-flat-2";
 const APP_ASSETS = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
-  "./icons/icon-192.png",
-  "./icons/icon-512.png"
+  "./icon-192.png",
+  "./icon-512.png"
 ];
 
 self.addEventListener("install", event => {

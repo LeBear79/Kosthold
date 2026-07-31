@@ -1,26 +1,20 @@
-{
-  "name": "Kosthold",
-  "short_name": "Kosthold",
-  "description": "Registrer kalorier, protein, oppskrifter og ferdige måltider.",
-  "lang": "nb-NO",
-  "start_url": "./",
-  "scope": "./",
-  "display": "standalone",
-  "orientation": "portrait-primary",
-  "background_color": "#f3f6f4",
-  "theme_color": "#153a32",
-  "icons": [
-    {
-      "src": "./icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "./icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ]
-}
+KOSTHOLD v2.1 PWA – ENKEL GITHUB-PAKKE
+
+Alle filer ligger i samme mappe.
+
+Slik laster du opp:
+1. Pakk ut ZIP-filen på PC-en.
+2. Åpne GitHub-repositoriet Kosthold.
+3. Velg Add file → Upload files.
+4. Marker alle filene i den utpakkede mappen.
+5. Dra dem inn i GitHub-vinduet.
+6. Velg Commit changes.
+
+Filer som skal ligge i hovedmappen:
+- index.html
+- manifest.webmanifest
+- service-worker.js
+- icon-192.png
+- icon-512.png
+
+README.txt er bare en veiledning og påvirker ikke appen.
