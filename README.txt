@@ -1,20 +1,17 @@
-KOSTHOLD v2.1 PWA – ENKEL GITHUB-PAKKE
+Kosthold v2.3
 
-Alle filer ligger i samme mappe.
+Denne ZIP-filen inneholder en ny index.html.
 
-Slik laster du opp:
-1. Pakk ut ZIP-filen på PC-en.
-2. Åpne GitHub-repositoriet Kosthold.
-3. Velg Add file → Upload files.
-4. Marker alle filene i den utpakkede mappen.
-5. Dra dem inn i GitHub-vinduet.
-6. Velg Commit changes.
+På GitHub:
+1. Pakk ut ZIP-filen.
+2. Last opp index.html.
+3. Erstatt den gamle index.html.
+4. Behold manifest.webmanifest, service-worker.js og ikonfilene uendret.
+5. Vent 1–2 minutter og åpne appen på nytt.
 
-Filer som skal ligge i hovedmappen:
-- index.html
-- manifest.webmanifest
-- service-worker.js
-- icon-192.png
-- icon-512.png
-
-README.txt er bare en veiledning og påvirker ikke appen.
+Ny registrering:
+- Velg måltid én gang.
+- Legg til flere matvarer uten å lukke vinduet.
+- Se løpende total for kalorier og protein.
+- Lagre hele måltidet med ett trykk.
+- Valgfritt: lagre kombinasjonen som et ferdig måltid.
