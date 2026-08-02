@@ -1,17 +1,23 @@
-Kosthold v2.3
+KOSTHOLD v2.4 PWA
 
-Denne ZIP-filen inneholder en ny index.html.
+Nytt:
+- Gjennomsnittlig kalori- og proteininntak siste 7 dager.
+- Gjennomsnittlig kalori- og proteininntak siste 30 dager.
+- Dag-for-dag-visning for siste 7 dager.
+- Gjennomsnittet beregnes av dager som faktisk har matregistrering.
+- Oppdatert PWA-cache for raskere versjonsoppdatering.
 
-På GitHub:
-1. Pakk ut ZIP-filen.
-2. Last opp index.html.
-3. Erstatt den gamle index.html.
-4. Behold manifest.webmanifest, service-worker.js og ikonfilene uendret.
-5. Vent 1–2 minutter og åpne appen på nytt.
+Last opp alle fem filene til hovedmappen på GitHub:
+- index.html
+- manifest.webmanifest
+- service-worker.js
+- icon-192.png
+- icon-512.png
 
-Ny registrering:
-- Velg måltid én gang.
-- Legg til flere matvarer uten å lukke vinduet.
-- Se løpende total for kalorier og protein.
-- Lagre hele måltidet med ett trykk.
-- Valgfritt: lagre kombinasjonen som et ferdig måltid.
+Erstatt filer med samme navn. README.md kan beholdes.
+
+Etter opplasting:
+1. Vent 1–2 minutter.
+2. Lukk appen helt.
+3. Åpne den igjen.
+4. Ved behov åpner du nettsiden én gang i vanlig Chrome og oppdaterer.
