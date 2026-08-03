@@ -1,19 +1,15 @@
-KOSTHOLD v2.5 PWA
+KOSTHOLD v2.5.1 PWA
 
-NYTT:
-- Oppskriftsbyggeren har søk mens du skriver.
-- Søket viser treff fra både dine matvarer og Matvaretabellen.
-- Treffene viser kalorier og protein.
-- Når en matvare fra Matvaretabellen brukes, lagres den automatisk i din lokale matvarebase.
-- Importerte varer blir tilgjengelige også i registrering av dagsmåltider.
-- Egne og tidligere importerte matvarer fungerer uten nett.
-- Nye søk i Matvaretabellen krever internettilkobling.
+Feilretting:
+- Retter tolkingen av Matvaretabellens næringsdata.
+- Søket skal nå vise matvarer fra Matvaretabellen med kcal og protein per 100 g.
+- Bedre feilmelding dersom API-formatet ikke kan leses.
 
-LAST OPP ALLE FILENE TIL HOVEDMAPPEN PÅ GITHUB:
+Last opp og erstatt:
 - index.html
-- manifest.webmanifest
 - service-worker.js
+- manifest.webmanifest
 - icon-192.png
 - icon-512.png
 
-Erstatt filene med samme navn. README.md kan beholdes.
+Vent 1–2 minutter, lukk appen helt og åpne den igjen.

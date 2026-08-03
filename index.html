@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="./icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png">
-<title>Kosthold v2.5</title>
+<title>Kosthold v2.5.1</title>
 <style>
 :root{
   --bg:#f3f6f4;--card:#fff;--text:#17211e;--muted:#65736e;--line:#dfe7e3;
@@ -165,7 +165,7 @@ dialog::backdrop{background:rgba(8,25,21,.55)}
 <header>
  <div class="header-inner">
   <div><h1>Kosthold</h1><div class="subtitle">Kalorier, protein og egne oppskrifter</div></div>
-  <div class="version">v2.5 PWA</div>
+  <div class="version">v2.5.1 PWA</div>
  </div>
 </header>
 <nav>
@@ -378,7 +378,7 @@ dialog::backdrop{background:rgba(8,25,21,.55)}
  <div class="modal-actions"><button class="btn ghost" data-close>Avbryt</button><button class="btn primary" id="saveFood">Lagre</button></div>
 </dialog>
 
-<footer>Kosthold v2.5 PWA · lokal lagring i nettleseren</footer>
+<footer>Kosthold v2.5.1 PWA · lokal lagring i nettleseren</footer>
 <script>
 const DEFAULT_FOODS=[{"name":"Speilegg (stk)","unit":"stk","kcalPerUnit":99.0,"proteinPerUnit":6.7,"source":"Excel"},{"name":"Ketchup (20g)","unit":"20 g","kcalPerUnit":22.0,"proteinPerUnit":0.2,"source":"Excel"},{"name":"Ost (stk)","unit":"stk","kcalPerUnit":10.4,"proteinPerUnit":1.16,"source":"Excel"},{"name":"Brød (stk)","unit":"stk","kcalPerUnit":83.0,"proteinPerUnit":2.673,"source":"Excel"},{"name":"Spekeskinke (stk)","unit":"stk","kcalPerUnit":16.73,"proteinPerUnit":1.99,"source":"Excel"},{"name":"Shake","unit":"porsjon","kcalPerUnit":132.0,"proteinPerUnit":31.45,"source":"Excel"},{"name":"Skinke(stk)","unit":"stk","kcalPerUnit":7.92,"proteinPerUnit":1.6,"source":"Excel"},{"name":"Smør (pr skive)","unit":"skive","kcalPerUnit":18.0,"proteinPerUnit":0.0,"source":"Excel"},{"name":"Egg rå (stk)","unit":"stk","kcalPerUnit":82.0,"proteinPerUnit":7.2,"source":"Excel"},{"name":"Lettmelk (glass)","unit":"glass","kcalPerUnit":37.0,"proteinPerUnit":3.7,"source":"Excel"},{"name":"Cottage cheese","unit":"g","kcalPerUnit":0.79,"proteinPerUnit":0.13,"source":"Excel"},{"name":"Hvetemel","unit":"g","kcalPerUnit":3.43,"proteinPerUnit":0.121,"source":"Excel"},{"name":"Havremel","unit":"g","kcalPerUnit":3.7,"proteinPerUnit":0.12,"source":"Excel"},{"name":"Eple","unit":"stk","kcalPerUnit":81.0,"proteinPerUnit":0.5,"source":"Excel"},{"name":"Melange","unit":"g","kcalPerUnit":6.75,"proteinPerUnit":0.0,"source":"Excel"},{"name":"Syltetøy","unit":"g","kcalPerUnit":1.76,"proteinPerUnit":0.02,"source":"Excel"},{"name":"Melk(glass)","unit":"glass","kcalPerUnit":66.0,"proteinPerUnit":8.0,"source":"Excel"},{"name":"Lapper","unit":"stk","kcalPerUnit":57.5,"proteinPerUnit":3.5,"source":"Excel"},{"name":"Gresk youghurt","unit":"g","kcalPerUnit":0.71,"proteinPerUnit":0.083,"source":"Excel"},{"name":"Vanliljekesam","unit":"g","kcalPerUnit":0.65,"proteinPerUnit":0.095,"source":"Excel"},{"name":"Bær","unit":"g","kcalPerUnit":0.5,"proteinPerUnit":0.01,"source":"Excel"},{"name":"Havregryn","unit":"g","kcalPerUnit":3.71,"proteinPerUnit":0.12,"source":"Excel"},{"name":"Rosiner","unit":"g","kcalPerUnit":3.16,"proteinPerUnit":0.03,"source":"Excel"},{"name":"Youghurblanding","unit":"porsjon","kcalPerUnit":304.75,"proteinPerUnit":20.41,"source":"Excel"},{"name":"Knekkerød","unit":"stk","kcalPerUnit":53.0,"proteinPerUnit":1.7,"source":"Excel"},{"name":"Philadelphia light","unit":"g","kcalPerUnit":1.76,"proteinPerUnit":0.021,"source":"Excel"},{"name":"Fetaost","unit":"g","kcalPerUnit":5.39,"proteinPerUnit":0.1,"source":"Excel"},{"name":"Philadelphia","unit":"g","kcalPerUnit":2.81,"proteinPerUnit":0.061,"source":"Excel"},{"name":"Omelett","unit":"porsjon","kcalPerUnit":748.19,"proteinPerUnit":37.746,"source":"Excel"},{"name":"Havregrøt","unit":"g","kcalPerUnit":0.75,"proteinPerUnit":0.048,"source":"Excel"},{"name":"Spagetti bollognese","unit":"porsjon","kcalPerUnit":700.0,"proteinPerUnit":36.0,"source":"Excel"},{"name":"Banan (stk)","unit":"stk","kcalPerUnit":100.0,"proteinPerUnit":1.4,"source":"Excel"},{"name":"Makrell i tomat(pr skive)","unit":"skive","kcalPerUnit":103.0,"proteinPerUnit":5.3,"source":"Excel"},{"name":"Majones (pr skive)","unit":"skive","kcalPerUnit":49.0,"proteinPerUnit":0.1,"source":"Excel"},{"name":"Fiskeburger","unit":"stk","kcalPerUnit":163.9,"proteinPerUnit":17.6,"source":"Excel"},{"name":"Ha,burgerbrød","unit":"stk","kcalPerUnit":182.65,"proteinPerUnit":6.435,"source":"Excel"},{"name":"Polarbrød","unit":"stk","kcalPerUnit":156.87,"proteinPerUnit":12.89,"source":"Excel"},{"name":"Laksefilet (stk)","unit":"stk","kcalPerUnit":238.0,"proteinPerUnit":23.7,"source":"Excel"},{"name":"Spagetti (100 g kokst)","unit":"stk","kcalPerUnit":150.0,"proteinPerUnit":6.0,"source":"Excel"},{"name":"Pesto (spiseskje)","unit":"stk","kcalPerUnit":93.0,"proteinPerUnit":0.9,"source":"Excel"},{"name":"Biola (glass)","unit":"glass","kcalPerUnit":102.0,"proteinPerUnit":6.0,"source":"Excel"},{"name":"Yt-pudding","unit":"porsjon","kcalPerUnit":144.4,"proteinPerUnit":20.9,"source":"Excel"},{"name":"Avokado","unit":"g","kcalPerUnit":1.91,"proteinPerUnit":0.018,"source":"Excel"},{"name":"Yougurt Dobbel","unit":"stk","kcalPerUnit":52.0,"proteinPerUnit":5.3,"source":"Excel"},{"name":"Youghurt vanlig","unit":"stk","kcalPerUnit":83.0,"proteinPerUnit":3.9,"source":"Excel"},{"name":"Sammalt rug","unit":"g","kcalPerUnit":3.48,"proteinPerUnit":0.11,"source":"Excel"},{"name":"Sukker","unit":"g","kcalPerUnit":4.0,"proteinPerUnit":0.0,"source":"Excel"},{"name":"Rundstykker","unit":"stk","kcalPerUnit":230.0,"proteinPerUnit":7.88,"source":"Excel"},{"name":"Posetomastsuppe","unit":"g","kcalPerUnit":0.48,"proteinPerUnit":0.012,"source":"Excel"},{"name":"Cremw fraise","unit":"g","kcalPerUnit":1.84,"proteinPerUnit":0.029,"source":"Excel"},{"name":"Olje","unit":"g","kcalPerUnit":8.83,"proteinPerUnit":0.0,"source":"Excel"},{"name":"Serranoskinke","unit":"g","kcalPerUnit":2.4,"proteinPerUnit":0.31,"source":"Excel"},{"name":"Hvit pizza (stk)","unit":"stk","kcalPerUnit":161.8,"proteinPerUnit":12.4,"source":"Excel"},{"name":"Omelett (alternativ)","unit":"porsjon","kcalPerUnit":474.7,"proteinPerUnit":31.0,"source":"Excel"},{"name":"Biola og korn","unit":"stk","kcalPerUnit":170.7,"proteinPerUnit":7.5,"source":"Excel"},{"name":"Salami God og mager (stk)","unit":"stk","kcalPerUnit":12.0,"proteinPerUnit":1.9,"source":"Excel"},{"name":"Kjøperundstykker","unit":"stk","kcalPerUnit":175.56,"proteinPerUnit":7.7,"source":"Excel"},{"name":"Mandler","unit":"g","kcalPerUnit":6.01,"proteinPerUnit":0.212,"source":"Excel"},{"name":"Fiskepinner (stk)","unit":"stk","kcalPerUnit":45.0,"proteinPerUnit":2.8,"source":"Excel"},{"name":"Ris(kokt)","unit":"g","kcalPerUnit":1.15,"proteinPerUnit":0.024,"source":"Excel"},{"name":"Majones (gr)","unit":"g","kcalPerUnit":4.78,"proteinPerUnit":0.01,"source":"Excel"},{"name":"Kyllingfilet","unit":"g","kcalPerUnit":1.53,"proteinPerUnit":0.277,"source":"Excel"},{"name":"Tortillalefse medium orginal","unit":"g","kcalPerUnit":3.02,"proteinPerUnit":0.083,"source":"Excel"},{"name":"Mais","unit":"g","kcalPerUnit":0.88,"proteinPerUnit":0.026,"source":"Excel"},{"name":"Karbonadedeig","unit":"g","kcalPerUnit":1.33,"proteinPerUnit":0.22,"source":"Excel"},{"name":"Poteter","unit":"g","kcalPerUnit":0.8,"proteinPerUnit":0.019,"source":"Excel"},{"name":"Kokt pasta","unit":"g","kcalPerUnit":1.5,"proteinPerUnit":0.0,"source":"Excel"},{"name":"Leverpostei","unit":"g","kcalPerUnit":2.25,"proteinPerUnit":0.1,"source":"Excel"},{"name":"Pære","unit":"stk","kcalPerUnit":90.0,"proteinPerUnit":0.8,"source":"Excel"},{"name":"Klementin","unit":"stk","kcalPerUnit":32.0,"proteinPerUnit":0.6,"source":"Excel"},{"name":"Makrell i tomat boks","unit":"stk","kcalPerUnit":437.0,"proteinPerUnit":22.0,"source":"Excel"},{"name":"Ost vanlig(stk)","unit":"stk","kcalPerUnit":13.76,"proteinPerUnit":1.08,"source":"Excel"},{"name":"Granola (40 g)","unit":"40 g","kcalPerUnit":152.0,"proteinPerUnit":4.0,"source":"Excel"},{"name":"Salami vanlig","unit":"g","kcalPerUnit":4.2,"proteinPerUnit":0.19,"source":"Excel"},{"name":"Yt-youghurt","unit":"g","kcalPerUnit":0.67,"proteinPerUnit":0.092,"source":"Excel"},{"name":"Entrecotte","unit":"g","kcalPerUnit":1.86,"proteinPerUnit":0.206,"source":"Excel"},{"name":"Bernaise saus","unit":"g","kcalPerUnit":0.48,"proteinPerUnit":0.012,"source":"Excel"},{"name":"Hjemmelaget brød","unit":"g","kcalPerUnit":2.54,"proteinPerUnit":0.081,"source":"Excel"},{"name":"Vanlig grillpølse stk","unit":"stk","kcalPerUnit":118.0,"proteinPerUnit":6.6,"source":"Excel"},{"name":"amburgerbrød fint","unit":"stk","kcalPerUnit":240.0,"proteinPerUnit":6.3,"source":"Excel"},{"name":"Ny shake","unit":"porsjon","kcalPerUnit":113.0,"proteinPerUnit":24.0,"source":"Excel"},{"name":"Kyllingsaus","unit":"g","kcalPerUnit":11.0,"proteinPerUnit":0.15,"source":"Excel"},{"name":"Lettrømme (ts)","unit":"g","kcalPerUnit":9.0,"proteinPerUnit":0.14,"source":"Excel"},{"name":"Tortilla havre","unit":"stk","kcalPerUnit":112.0,"proteinPerUnit":3.2,"source":"Excel"},{"name":"Grøt","unit":"g","kcalPerUnit":1.07,"proteinPerUnit":0.085,"source":"Excel"},{"name":"Toro sjokoladekake","unit":"g","kcalPerUnit":3.8,"proteinPerUnit":0.036,"source":"Excel"}];
 const MEALS=[
@@ -649,21 +649,118 @@ let selectedRecipeMatch=null;
 let recipeSearchTimer=null;
 const MATVARETABELLEN_URL="https://www.matvaretabellen.no/api/nb/foods.json";
 
-function numericFoodValue(food,key){
- const raw=food?.[key];
- const value=raw&&typeof raw==="object"?raw.value:raw;
- const n=Number(String(value??"").replace(",","."));
+function parseNumber(value){
+ if(value&&typeof value==="object"){
+  for(const key of ["value","amount","quantity","numericValue","content"]){
+   if(key in value){
+    const parsed=parseNumber(value[key]);
+    if(parsed!==null)return parsed;
+   }
+  }
+  return null;
+ }
+ if(typeof value==="number")return Number.isFinite(value)?value:null;
+ if(typeof value!=="string")return null;
+ const cleaned=value
+  .replace(/\u00a0/g," ")
+  .replace(/[<>≈~]/g,"")
+  .replace(",",".")
+  .match(/-?\d+(?:\.\d+)?/);
+ if(!cleaned)return null;
+ const n=Number(cleaned[0]);
  return Number.isFinite(n)?n:null;
 }
 
+function normalizeLabel(value){
+ return String(value??"")
+  .toLocaleLowerCase("nb-NO")
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g,"")
+  .replace(/[^a-z0-9]+/g," ");
+}
+
+function collectNutrientCandidates(node,path=[],result=[]){
+ if(node===null||node===undefined)return result;
+ if(Array.isArray(node)){
+  node.forEach((item,index)=>collectNutrientCandidates(item,[...path,String(index)],result));
+  return result;
+ }
+ if(typeof node!=="object")return result;
+
+ const labelParts=[];
+ for(const key of ["id","name","label","title","nutrient","nutrientId","nutrientName","component","componentId","componentName","unit"]){
+  const value=node[key];
+  if(typeof value==="string"||typeof value==="number")labelParts.push(String(value));
+  else if(value&&typeof value==="object"){
+   for(const subKey of ["id","name","label","title"]){
+    if(typeof value[subKey]==="string")labelParts.push(value[subKey]);
+   }
+  }
+ }
+ const label=normalizeLabel([...path,...labelParts].join(" "));
+ for(const valueKey of ["value","amount","quantity","numericValue","content"]){
+  if(valueKey in node){
+   const value=parseNumber(node[valueKey]);
+   if(value!==null)result.push({label,value,node});
+  }
+ }
+
+ for(const [key,value] of Object.entries(node)){
+  const direct=parseNumber(value);
+  if(direct!==null&&typeof value!=="object"){
+   result.push({label:normalizeLabel([...path,key].join(" ")),value,node});
+  }
+  if(value&&typeof value==="object"){
+   collectNutrientCandidates(value,[...path,key],result);
+  }
+ }
+ return result;
+}
+
+function chooseNutrient(candidates,type){
+ const scored=candidates.map(candidate=>{
+  const label=candidate.label;
+  let score=-1;
+  if(type==="protein"){
+   if(/\bprotein\b/.test(label))score=100;
+   if(/\bprotein total\b/.test(label))score=110;
+  }else{
+   if(/\benergi2\b/.test(label))score=130;
+   if(/\benergy2\b/.test(label))score=130;
+   if(/\benergi\b/.test(label)&&/\bkcal\b/.test(label))score=120;
+   if(/\benergy\b/.test(label)&&/\bkcal\b/.test(label))score=120;
+   if(/\bkilokalori/.test(label))score=115;
+   if(/\bkcal\b/.test(label))score=Math.max(score,100);
+  }
+  return {...candidate,score};
+ }).filter(x=>x.score>=0&&Number.isFinite(x.value));
+ scored.sort((a,b)=>b.score-a.score);
+ return scored[0]?.value??null;
+}
+
+function foodName(food){
+ for(const key of ["name","foodName","title","displayName"]){
+  const value=food?.[key];
+  if(typeof value==="string"&&value.trim())return value.trim();
+  if(value&&typeof value==="object"){
+   for(const subKey of ["nb","no","name","value","label"]){
+    if(typeof value[subKey]==="string"&&value[subKey].trim())return value[subKey].trim();
+   }
+  }
+ }
+ return "";
+}
+
 function parseMatvaretabellenFood(food){
- const kcal=numericFoodValue(food,"Energi2");
- const protein=numericFoodValue(food,"Protein");
- if(!food?.name||kcal===null||protein===null)return null;
+ const candidates=collectNutrientCandidates(food);
+ const kcal=chooseNutrient(candidates,"kcal");
+ const protein=chooseNutrient(candidates,"protein");
+ const name=foodName(food);
+ if(!name||kcal===null||protein===null)return null;
  return {
   type:"mvt",
-  mvtId:String(food.id||food.slug||food.name),
-  name:String(food.name),
+  mvtId:String(food.id||food.foodId||food.slug||name),
+  name,
   unit:"g",
   kcalPerUnit:kcal/100,
   proteinPerUnit:protein/100,
@@ -683,6 +780,10 @@ async function ensureMatvaretabellen(){
  const payload=await response.json();
  const rows=Array.isArray(payload)?payload:(payload.foods||[]);
  matvaretabellenFoods=rows.map(parseMatvaretabellenFood).filter(Boolean);
+ if(!matvaretabellenFoods.length){
+  console.error("Matvaretabellen: fant ingen lesbare matvarer. Eksempeldata:",rows[0]);
+  throw new Error("Matvaretabellens dataformat kunne ikke tolkes.");
+ }
  return matvaretabellenFoods;
 }
 
