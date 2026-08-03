@@ -1,23 +1,19 @@
-KOSTHOLD v2.4 PWA
+KOSTHOLD v2.5 PWA
 
-Nytt:
-- Gjennomsnittlig kalori- og proteininntak siste 7 dager.
-- Gjennomsnittlig kalori- og proteininntak siste 30 dager.
-- Dag-for-dag-visning for siste 7 dager.
-- Gjennomsnittet beregnes av dager som faktisk har matregistrering.
-- Oppdatert PWA-cache for raskere versjonsoppdatering.
+NYTT:
+- Oppskriftsbyggeren har søk mens du skriver.
+- Søket viser treff fra både dine matvarer og Matvaretabellen.
+- Treffene viser kalorier og protein.
+- Når en matvare fra Matvaretabellen brukes, lagres den automatisk i din lokale matvarebase.
+- Importerte varer blir tilgjengelige også i registrering av dagsmåltider.
+- Egne og tidligere importerte matvarer fungerer uten nett.
+- Nye søk i Matvaretabellen krever internettilkobling.
 
-Last opp alle fem filene til hovedmappen på GitHub:
+LAST OPP ALLE FILENE TIL HOVEDMAPPEN PÅ GITHUB:
 - index.html
 - manifest.webmanifest
 - service-worker.js
 - icon-192.png
 - icon-512.png
 
-Erstatt filer med samme navn. README.md kan beholdes.
-
-Etter opplasting:
-1. Vent 1–2 minutter.
-2. Lukk appen helt.
-3. Åpne den igjen.
-4. Ved behov åpner du nettsiden én gang i vanlig Chrome og oppdaterer.
+Erstatt filene med samme navn. README.md kan beholdes.

@@ -1,7 +1,7 @@
 {
   "name": "Kosthold",
   "short_name": "Kosthold",
-  "description": "Registrer kalorier og protein, lag oppskrifter og se 7- og 30-dagers oversikt.",
+  "description": "Registrer kalorier og protein, bygg oppskrifter og søk i Matvaretabellen.",
   "lang": "nb-NO",
   "start_url": "./",
   "scope": "./",
