@@ -1,14 +1,16 @@
-KOSTHOLD v2.5.1 PWA
+KOSTHOLD v2.5.2 PWA
 
-Feilretting:
-- Retter tolkingen av Matvaretabellens næringsdata.
-- Søket skal nå vise matvarer fra Matvaretabellen med kcal og protein per 100 g.
-- Bedre feilmelding dersom API-formatet ikke kan leses.
+NYTT:
+- Hver matregistrering har nå knappene Rediger og Slett.
+- Rediger lar deg endre mengden, for eksempel fra 520 g til 556 g.
+- Kalorier og protein beregnes på nytt automatisk.
+- Du kan også flytte registreringen mellom frokost, lunsj, middag, kveldsmat og mellommåltid.
+- Endringen gjelder bare den valgte dagens registrering. Selve oppskriften eller det ferdige standardmåltidet endres ikke.
 
-Last opp og erstatt:
+LAST OPP OG ERSTATT ALLE FILENE PÅ GITHUB:
 - index.html
-- service-worker.js
 - manifest.webmanifest
+- service-worker.js
 - icon-192.png
 - icon-512.png
 

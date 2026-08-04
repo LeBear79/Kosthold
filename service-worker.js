@@ -1,4 +1,4 @@
-const CACHE_NAME = "kosthold-v2-5-1-pwa-1";
+const CACHE_NAME = "kosthold-v2-5-2-pwa-1";
 const APP_ASSETS = [
   "./",
   "./index.html",
