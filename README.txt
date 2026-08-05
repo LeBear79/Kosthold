@@ -1,12 +1,14 @@
-KOSTHOLD v2.6 PWA
+KOSTHOLD v2.8 PWA
 
 NYTT:
-- Rediger innholdet i et ferdig måltid etter at det er lagt inn på en dag.
-- Eksempel: endre havregrøt fra 520 g til 556 g.
-- Kalorier og protein beregnes automatisk på nytt.
-- Velg om endringen bare gjelder dagens registrering eller også standardmåltidet.
-- Ferdige måltider kan også redigeres direkte under fanen «Ferdige måltider».
-- Eldre ferdige måltider forsøkes koblet til standardmåltidet ved navn.
+- Registrer måltid søker mens du skriver i:
+  - Mine matvarer
+  - Oppskrifter
+  - Ferdige måltider
+  - Matvaretabellen
+- Treffene grupperes og merkes tydelig.
+- Matvarer fra Matvaretabellen lagres automatisk i din lokale matvarebase når du bruker dem.
+- Alt fra v2.7 er med, inkludert oppskrifter per stykk.
 
 LAST OPP OG ERSTATT:
 - index.html
@@ -14,5 +16,3 @@ LAST OPP OG ERSTATT:
 - service-worker.js
 - icon-192.png
 - icon-512.png
-
-Registreringene beholdes i samme lokale lagring.
