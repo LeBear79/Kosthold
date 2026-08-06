@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="./icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png">
-<title>Kosthold v2.9</title>
+<title>Kosthold v3.0</title>
 <style>
 :root{
   --bg:#f3f6f4;--card:#fff;--text:#17211e;--muted:#65736e;--line:#dfe7e3;
@@ -113,6 +113,34 @@ input:focus,select:focus{outline:3px solid rgba(45,148,121,.16);border-color:var
 .table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse;min-width:650px}
 .table th,.table td{text-align:left;padding:10px;border-bottom:1px solid var(--line);font-size:14px}
 .table th{color:var(--muted);font-size:12px;text-transform:uppercase}
+.planner-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.planner-picker{margin-top:14px;border:1px solid var(--line);border-radius:16px;background:#fff;overflow:hidden}
+.planner-search-wrap{padding:13px;background:#f8fbfa;border-bottom:1px solid var(--line)}
+.planner-list{max-height:310px;overflow:auto}
+.planner-pick{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 13px;border-top:1px solid #edf1ef}
+.planner-pick:first-child{border-top:0}
+.planner-pick input{width:auto}
+.planner-pick-name{font-weight:800}
+.planner-pick-meta{font-size:12px;color:var(--muted);margin-top:3px}
+.planner-count{font-size:12px;color:var(--muted);padding:8px 12px;background:#f5f8f6;border-radius:999px}
+.planner-results{display:grid;gap:14px}
+.planner-result{border:1px solid #cfe0d9;border-radius:18px;background:#fff;overflow:hidden}
+.planner-result-head{padding:15px 16px;background:var(--soft);display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.planner-result-title{font-size:18px;font-weight:900;color:#123c32}
+.planner-result-score{font-size:12px;color:var(--muted);margin-top:3px}
+.planner-items{padding:0 16px}
+.planner-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:12px 0;border-top:1px solid var(--line)}
+.planner-item:first-child{border-top:0}
+.planner-item-name{font-weight:800}
+.planner-item-meta{font-size:13px;color:var(--muted);margin-top:3px}
+.planner-total{padding:14px 16px;background:#f8fbfa;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:center}
+.planner-total strong{font-size:18px}
+.planner-empty{padding:24px;text-align:center;color:var(--muted);background:#f8faf9;border-radius:16px}
+.planner-note{margin-top:12px;font-size:13px;color:var(--muted)}
+@media(max-width:760px){
+ .planner-grid{grid-template-columns:1fr}
+ .planner-result-head,.planner-total{flex-direction:column}
+}
 .period-card{border:1px solid var(--line);border-radius:18px;padding:17px;background:#fff}
 .period-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:13px}
 .period-title{font-size:20px;font-weight:900;color:#123c32}
@@ -217,7 +245,7 @@ dialog::backdrop{background:rgba(8,25,21,.55)}
 <header>
  <div class="header-inner">
   <div><h1>Kosthold</h1><div class="subtitle">Kalorier, protein og egne oppskrifter</div></div>
-  <div class="version">v2.9 PWA</div>
+  <div class="version">v3.0 PWA</div>
  </div>
 </header>
 <nav>
@@ -225,6 +253,7 @@ dialog::backdrop{background:rgba(8,25,21,.55)}
  <button data-view="foods">Matvarer</button>
  <button data-view="recipes">Oppskrifter</button>
  <button data-view="savedMeals">Ferdige måltider</button>
+ <button data-view="planner">Måltidsplanlegger</button>
  <button data-view="overview">Oversikt</button>
  <button data-view="goals">Mål</button>
  <button data-view="backup">Sikkerhetskopi</button>
@@ -344,6 +373,36 @@ dialog::backdrop{background:rgba(8,25,21,.55)}
   <button class="btn primary" id="saveSavedMeal" style="margin-top:14px">Lagre ferdig måltid</button>
  </div>
  <div class="card"><h2 class="section-title">Mine ferdige måltider</h2><div id="savedMealList"></div></div>
+</section>
+
+<section id="planner" class="view">
+ <div class="card">
+  <h2 class="section-title">Måltidsplanlegger</h2>
+  <div class="muted">Velg aktuelle matvarer, og la appen finne mengder som kommer nær ønsket kalorimengde og protein.</div>
+  <div class="planner-grid" style="margin-top:14px">
+   <div><label>Ønsket kalorimengde</label><input id="plannerTargetKcal" type="number" min="50" step="10" value="700"></div>
+   <div><label>Ønsket protein (g)</label><input id="plannerTargetProtein" type="number" min="1" step="1" value="45"></div>
+   <div><label>Legg forslaget under</label><select id="plannerMeal"></select></div>
+  </div>
+  <div class="row between" style="margin-top:16px">
+   <div><strong>Velg matvarer som kan brukes</strong><div class="muted">Velg helst 3–8 matvarer eller oppskrifter som passer sammen.</div></div>
+   <div class="planner-count" id="plannerSelectedCount">0 valgt</div>
+  </div>
+  <div class="planner-picker">
+   <div class="planner-search-wrap"><input id="plannerFoodSearch" placeholder="Søk i matvarer, oppskrifter og ferdige måltider"></div>
+   <div class="planner-list" id="plannerFoodList"></div>
+  </div>
+  <div class="row" style="margin-top:14px">
+   <button class="btn secondary" id="plannerSelectRecent">Velg nylig brukte</button>
+   <button class="btn ghost" id="plannerClearSelection">Fjern alle valg</button>
+   <button class="btn primary" id="generateMealSuggestions">Lag forslag</button>
+  </div>
+  <div class="planner-note">Forslagene er matematiske tilnærminger basert på matvarene du velger. Kontroller at kombinasjonen også passer smaksmessig og praktisk.</div>
+ </div>
+ <div class="card">
+  <h2 class="section-title">Forslag</h2>
+  <div id="plannerResults" class="planner-results"><div class="planner-empty">Velg matvarer og trykk «Lag forslag».</div></div>
+ </div>
 </section>
 
 <section id="overview" class="view">
@@ -546,7 +605,7 @@ dialog::backdrop{background:rgba(8,25,21,.55)}
  <div class="modal-actions"><button class="btn ghost" data-close>Avbryt</button><button class="btn primary" id="saveFood">Lagre</button></div>
 </dialog>
 
-<footer>Kosthold v2.9 PWA · lokal lagring i nettleseren</footer>
+<footer>Kosthold v3.0 PWA · lokal lagring i nettleseren</footer>
 <script>
 const DEFAULT_FOODS=[{"name":"Speilegg (stk)","unit":"stk","kcalPerUnit":99.0,"proteinPerUnit":6.7,"source":"Excel"},{"name":"Ketchup (20g)","unit":"20 g","kcalPerUnit":22.0,"proteinPerUnit":0.2,"source":"Excel"},{"name":"Ost (stk)","unit":"stk","kcalPerUnit":10.4,"proteinPerUnit":1.16,"source":"Excel"},{"name":"Brød (stk)","unit":"stk","kcalPerUnit":83.0,"proteinPerUnit":2.673,"source":"Excel"},{"name":"Spekeskinke (stk)","unit":"stk","kcalPerUnit":16.73,"proteinPerUnit":1.99,"source":"Excel"},{"name":"Shake","unit":"porsjon","kcalPerUnit":132.0,"proteinPerUnit":31.45,"source":"Excel"},{"name":"Skinke(stk)","unit":"stk","kcalPerUnit":7.92,"proteinPerUnit":1.6,"source":"Excel"},{"name":"Smør (pr skive)","unit":"skive","kcalPerUnit":18.0,"proteinPerUnit":0.0,"source":"Excel"},{"name":"Egg rå (stk)","unit":"stk","kcalPerUnit":82.0,"proteinPerUnit":7.2,"source":"Excel"},{"name":"Lettmelk (glass)","unit":"glass","kcalPerUnit":37.0,"proteinPerUnit":3.7,"source":"Excel"},{"name":"Cottage cheese","unit":"g","kcalPerUnit":0.79,"proteinPerUnit":0.13,"source":"Excel"},{"name":"Hvetemel","unit":"g","kcalPerUnit":3.43,"proteinPerUnit":0.121,"source":"Excel"},{"name":"Havremel","unit":"g","kcalPerUnit":3.7,"proteinPerUnit":0.12,"source":"Excel"},{"name":"Eple","unit":"stk","kcalPerUnit":81.0,"proteinPerUnit":0.5,"source":"Excel"},{"name":"Melange","unit":"g","kcalPerUnit":6.75,"proteinPerUnit":0.0,"source":"Excel"},{"name":"Syltetøy","unit":"g","kcalPerUnit":1.76,"proteinPerUnit":0.02,"source":"Excel"},{"name":"Melk(glass)","unit":"glass","kcalPerUnit":66.0,"proteinPerUnit":8.0,"source":"Excel"},{"name":"Lapper","unit":"stk","kcalPerUnit":57.5,"proteinPerUnit":3.5,"source":"Excel"},{"name":"Gresk youghurt","unit":"g","kcalPerUnit":0.71,"proteinPerUnit":0.083,"source":"Excel"},{"name":"Vanliljekesam","unit":"g","kcalPerUnit":0.65,"proteinPerUnit":0.095,"source":"Excel"},{"name":"Bær","unit":"g","kcalPerUnit":0.5,"proteinPerUnit":0.01,"source":"Excel"},{"name":"Havregryn","unit":"g","kcalPerUnit":3.71,"proteinPerUnit":0.12,"source":"Excel"},{"name":"Rosiner","unit":"g","kcalPerUnit":3.16,"proteinPerUnit":0.03,"source":"Excel"},{"name":"Youghurblanding","unit":"porsjon","kcalPerUnit":304.75,"proteinPerUnit":20.41,"source":"Excel"},{"name":"Knekkerød","unit":"stk","kcalPerUnit":53.0,"proteinPerUnit":1.7,"source":"Excel"},{"name":"Philadelphia light","unit":"g","kcalPerUnit":1.76,"proteinPerUnit":0.021,"source":"Excel"},{"name":"Fetaost","unit":"g","kcalPerUnit":5.39,"proteinPerUnit":0.1,"source":"Excel"},{"name":"Philadelphia","unit":"g","kcalPerUnit":2.81,"proteinPerUnit":0.061,"source":"Excel"},{"name":"Omelett","unit":"porsjon","kcalPerUnit":748.19,"proteinPerUnit":37.746,"source":"Excel"},{"name":"Havregrøt","unit":"g","kcalPerUnit":0.75,"proteinPerUnit":0.048,"source":"Excel"},{"name":"Spagetti bollognese","unit":"porsjon","kcalPerUnit":700.0,"proteinPerUnit":36.0,"source":"Excel"},{"name":"Banan (stk)","unit":"stk","kcalPerUnit":100.0,"proteinPerUnit":1.4,"source":"Excel"},{"name":"Makrell i tomat(pr skive)","unit":"skive","kcalPerUnit":103.0,"proteinPerUnit":5.3,"source":"Excel"},{"name":"Majones (pr skive)","unit":"skive","kcalPerUnit":49.0,"proteinPerUnit":0.1,"source":"Excel"},{"name":"Fiskeburger","unit":"stk","kcalPerUnit":163.9,"proteinPerUnit":17.6,"source":"Excel"},{"name":"Ha,burgerbrød","unit":"stk","kcalPerUnit":182.65,"proteinPerUnit":6.435,"source":"Excel"},{"name":"Polarbrød","unit":"stk","kcalPerUnit":156.87,"proteinPerUnit":12.89,"source":"Excel"},{"name":"Laksefilet (stk)","unit":"stk","kcalPerUnit":238.0,"proteinPerUnit":23.7,"source":"Excel"},{"name":"Spagetti (100 g kokst)","unit":"stk","kcalPerUnit":150.0,"proteinPerUnit":6.0,"source":"Excel"},{"name":"Pesto (spiseskje)","unit":"stk","kcalPerUnit":93.0,"proteinPerUnit":0.9,"source":"Excel"},{"name":"Biola (glass)","unit":"glass","kcalPerUnit":102.0,"proteinPerUnit":6.0,"source":"Excel"},{"name":"Yt-pudding","unit":"porsjon","kcalPerUnit":144.4,"proteinPerUnit":20.9,"source":"Excel"},{"name":"Avokado","unit":"g","kcalPerUnit":1.91,"proteinPerUnit":0.018,"source":"Excel"},{"name":"Yougurt Dobbel","unit":"stk","kcalPerUnit":52.0,"proteinPerUnit":5.3,"source":"Excel"},{"name":"Youghurt vanlig","unit":"stk","kcalPerUnit":83.0,"proteinPerUnit":3.9,"source":"Excel"},{"name":"Sammalt rug","unit":"g","kcalPerUnit":3.48,"proteinPerUnit":0.11,"source":"Excel"},{"name":"Sukker","unit":"g","kcalPerUnit":4.0,"proteinPerUnit":0.0,"source":"Excel"},{"name":"Rundstykker","unit":"stk","kcalPerUnit":230.0,"proteinPerUnit":7.88,"source":"Excel"},{"name":"Posetomastsuppe","unit":"g","kcalPerUnit":0.48,"proteinPerUnit":0.012,"source":"Excel"},{"name":"Cremw fraise","unit":"g","kcalPerUnit":1.84,"proteinPerUnit":0.029,"source":"Excel"},{"name":"Olje","unit":"g","kcalPerUnit":8.83,"proteinPerUnit":0.0,"source":"Excel"},{"name":"Serranoskinke","unit":"g","kcalPerUnit":2.4,"proteinPerUnit":0.31,"source":"Excel"},{"name":"Hvit pizza (stk)","unit":"stk","kcalPerUnit":161.8,"proteinPerUnit":12.4,"source":"Excel"},{"name":"Omelett (alternativ)","unit":"porsjon","kcalPerUnit":474.7,"proteinPerUnit":31.0,"source":"Excel"},{"name":"Biola og korn","unit":"stk","kcalPerUnit":170.7,"proteinPerUnit":7.5,"source":"Excel"},{"name":"Salami God og mager (stk)","unit":"stk","kcalPerUnit":12.0,"proteinPerUnit":1.9,"source":"Excel"},{"name":"Kjøperundstykker","unit":"stk","kcalPerUnit":175.56,"proteinPerUnit":7.7,"source":"Excel"},{"name":"Mandler","unit":"g","kcalPerUnit":6.01,"proteinPerUnit":0.212,"source":"Excel"},{"name":"Fiskepinner (stk)","unit":"stk","kcalPerUnit":45.0,"proteinPerUnit":2.8,"source":"Excel"},{"name":"Ris(kokt)","unit":"g","kcalPerUnit":1.15,"proteinPerUnit":0.024,"source":"Excel"},{"name":"Majones (gr)","unit":"g","kcalPerUnit":4.78,"proteinPerUnit":0.01,"source":"Excel"},{"name":"Kyllingfilet","unit":"g","kcalPerUnit":1.53,"proteinPerUnit":0.277,"source":"Excel"},{"name":"Tortillalefse medium orginal","unit":"g","kcalPerUnit":3.02,"proteinPerUnit":0.083,"source":"Excel"},{"name":"Mais","unit":"g","kcalPerUnit":0.88,"proteinPerUnit":0.026,"source":"Excel"},{"name":"Karbonadedeig","unit":"g","kcalPerUnit":1.33,"proteinPerUnit":0.22,"source":"Excel"},{"name":"Poteter","unit":"g","kcalPerUnit":0.8,"proteinPerUnit":0.019,"source":"Excel"},{"name":"Kokt pasta","unit":"g","kcalPerUnit":1.5,"proteinPerUnit":0.0,"source":"Excel"},{"name":"Leverpostei","unit":"g","kcalPerUnit":2.25,"proteinPerUnit":0.1,"source":"Excel"},{"name":"Pære","unit":"stk","kcalPerUnit":90.0,"proteinPerUnit":0.8,"source":"Excel"},{"name":"Klementin","unit":"stk","kcalPerUnit":32.0,"proteinPerUnit":0.6,"source":"Excel"},{"name":"Makrell i tomat boks","unit":"stk","kcalPerUnit":437.0,"proteinPerUnit":22.0,"source":"Excel"},{"name":"Ost vanlig(stk)","unit":"stk","kcalPerUnit":13.76,"proteinPerUnit":1.08,"source":"Excel"},{"name":"Granola (40 g)","unit":"40 g","kcalPerUnit":152.0,"proteinPerUnit":4.0,"source":"Excel"},{"name":"Salami vanlig","unit":"g","kcalPerUnit":4.2,"proteinPerUnit":0.19,"source":"Excel"},{"name":"Yt-youghurt","unit":"g","kcalPerUnit":0.67,"proteinPerUnit":0.092,"source":"Excel"},{"name":"Entrecotte","unit":"g","kcalPerUnit":1.86,"proteinPerUnit":0.206,"source":"Excel"},{"name":"Bernaise saus","unit":"g","kcalPerUnit":0.48,"proteinPerUnit":0.012,"source":"Excel"},{"name":"Hjemmelaget brød","unit":"g","kcalPerUnit":2.54,"proteinPerUnit":0.081,"source":"Excel"},{"name":"Vanlig grillpølse stk","unit":"stk","kcalPerUnit":118.0,"proteinPerUnit":6.6,"source":"Excel"},{"name":"amburgerbrød fint","unit":"stk","kcalPerUnit":240.0,"proteinPerUnit":6.3,"source":"Excel"},{"name":"Ny shake","unit":"porsjon","kcalPerUnit":113.0,"proteinPerUnit":24.0,"source":"Excel"},{"name":"Kyllingsaus","unit":"g","kcalPerUnit":11.0,"proteinPerUnit":0.15,"source":"Excel"},{"name":"Lettrømme (ts)","unit":"g","kcalPerUnit":9.0,"proteinPerUnit":0.14,"source":"Excel"},{"name":"Tortilla havre","unit":"stk","kcalPerUnit":112.0,"proteinPerUnit":3.2,"source":"Excel"},{"name":"Grøt","unit":"g","kcalPerUnit":1.07,"proteinPerUnit":0.085,"source":"Excel"},{"name":"Toro sjokoladekake","unit":"g","kcalPerUnit":3.8,"proteinPerUnit":0.036,"source":"Excel"}];
 const MEALS=[
@@ -590,6 +649,7 @@ document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
  if(b.dataset.view==="foods")renderFoods();
  if(b.dataset.view==="recipes")renderRecipes();
  if(b.dataset.view==="savedMeals")renderSavedMeals();
+ if(b.dataset.view==="planner")renderPlanner();
  if(b.dataset.view==="overview")renderOverview();
  if(b.dataset.view==="goals")renderGoals();
 });
@@ -1792,6 +1852,187 @@ editLogDialog.addEventListener("close",()=>{
 });
 
 
+let plannerSelectedIds=new Set();
+let plannerSuggestions=[];
+
+function plannerCatalog(){
+ const foods=state.foods.map(x=>({id:`food:${x.id}`,sourceType:"food",sourceId:x.id,name:x.name,unit:x.unit,kcalPerUnit:Number(x.kcalPerUnit||0),proteinPerUnit:Number(x.proteinPerUnit||0),category:"Matvare"}));
+ const recipes=state.recipes.map(x=>({id:`recipe:${x.id}`,sourceType:"recipe",sourceId:x.id,name:x.name,unit:x.kcalPerPiece?(x.pieceName||"stk"):"g",kcalPerUnit:Number(x.kcalPerPiece??x.kcalPer100/100),proteinPerUnit:Number(x.proteinPerPiece??x.proteinPer100/100),category:"Oppskrift"}));
+ const meals=state.savedMeals.map(x=>({id:`savedmeal:${x.id}`,sourceType:"savedmeal",sourceId:x.id,name:x.name,unit:"måltid",kcalPerUnit:Number(x.kcalTotal||0),proteinPerUnit:Number(x.proteinTotal||0),category:"Ferdig måltid",componentItems:clone(x.items||[])}));
+ return [...foods,...recipes,...meals].filter(x=>x.name&&x.kcalPerUnit>0).sort((a,b)=>a.name.localeCompare(b.name,"nb"));
+}
+
+function renderPlanner(){
+ document.getElementById("plannerMeal").innerHTML=MEALS.map(x=>`<option value="${x.id}">${x.name}</option>`).join("");
+ renderPlannerFoodList();
+}
+
+function plannerUsageCounts(){
+ const counts={};
+ Object.values(state.logs||{}).flat().forEach(item=>{
+  const keys=[
+   item.sourceType&&item.sourceId?`${item.sourceType}:${item.sourceId}`:null,
+   ...state.foods.filter(f=>f.name===item.name).map(f=>`food:${f.id}`),
+   ...state.recipes.filter(r=>r.name===item.name).map(r=>`recipe:${r.id}`),
+   ...state.savedMeals.filter(m=>m.name===item.name).map(m=>`savedmeal:${m.id}`)
+  ].filter(Boolean);
+  keys.forEach(key=>counts[key]=(counts[key]||0)+1);
+ });
+ return counts;
+}
+
+function renderPlannerFoodList(){
+ const q=document.getElementById("plannerFoodSearch").value.trim().toLocaleLowerCase("nb-NO");
+ const list=plannerCatalog().filter(x=>!q||x.name.toLocaleLowerCase("nb-NO").includes(q));
+ const wrap=document.getElementById("plannerFoodList");
+ wrap.innerHTML="";
+ if(!list.length){
+  wrap.innerHTML='<div class="empty">Ingen treff</div>';
+ }else{
+  list.slice(0,120).forEach(item=>{
+   const row=document.createElement("label");
+   row.className="planner-pick";
+   const checked=plannerSelectedIds.has(item.id);
+   const per=item.unit==="g"?`${round(item.kcalPerUnit*100,0)} kcal · ${round(item.proteinPerUnit*100)} g protein per 100 g`:`${round(item.kcalPerUnit,0)} kcal · ${round(item.proteinPerUnit)} g protein per ${item.unit}`;
+   row.innerHTML=`<input type="checkbox" ${checked?"checked":""}><div><div class="planner-pick-name">${escapeHtml(item.name)}</div><div class="planner-pick-meta">${escapeHtml(item.category)} · ${per}</div></div><span class="badge">${escapeHtml(item.unit)}</span>`;
+   row.querySelector("input").onchange=e=>{
+    if(e.target.checked)plannerSelectedIds.add(item.id); else plannerSelectedIds.delete(item.id);
+    updatePlannerCount();
+   };
+   wrap.appendChild(row);
+  });
+ }
+ updatePlannerCount();
+}
+
+function updatePlannerCount(){document.getElementById("plannerSelectedCount").textContent=`${plannerSelectedIds.size} valgt`;}
+document.getElementById("plannerFoodSearch").oninput=renderPlannerFoodList;
+document.getElementById("plannerClearSelection").onclick=()=>{plannerSelectedIds.clear();renderPlannerFoodList();};
+
+document.getElementById("plannerSelectRecent").onclick=()=>{
+ const counts=plannerUsageCounts();
+ const recent=plannerCatalog().map(x=>({...x,count:counts[x.id]||0})).filter(x=>x.count>0).sort((a,b)=>b.count-a.count).slice(0,8);
+ if(!recent.length)return alert("Du har ikke nok tidligere registreringer til å finne nylig brukte matvarer.");
+ plannerSelectedIds=new Set(recent.map(x=>x.id));
+ renderPlannerFoodList();
+};
+
+function quantityBounds(item){
+ if(item.unit==="g")return {min:10,max:700,step:5};
+ if(item.unit==="måltid")return {min:0.25,max:2,step:0.25};
+ return {min:0.25,max:6,step:0.25};
+}
+function roundQuantity(value,item){
+ const {min,max,step}=quantityBounds(item);
+ return Math.max(min,Math.min(max,Math.round(value/step)*step));
+}
+function suggestionTotals(items){
+ return items.reduce((a,x)=>{a.kcal+=x.item.kcalPerUnit*x.amount;a.protein+=x.item.proteinPerUnit*x.amount;return a},{kcal:0,protein:0});
+}
+function suggestionScore(items,targetKcal,targetProtein){
+ const total=suggestionTotals(items);
+ const kcalError=Math.abs(total.kcal-targetKcal)/Math.max(targetKcal,1);
+ const proteinError=Math.abs(total.protein-targetProtein)/Math.max(targetProtein,1);
+ return kcalError*0.55+proteinError*0.45;
+}
+function validSuggestion(items){
+ return items.every(x=>{const b=quantityBounds(x.item);return Number.isFinite(x.amount)&&x.amount>=b.min&&x.amount<=b.max;});
+}
+function solveTwo(a,b,targetKcal,targetProtein){
+ const det=a.kcalPerUnit*b.proteinPerUnit-b.kcalPerUnit*a.proteinPerUnit;
+ if(Math.abs(det)<1e-9)return null;
+ const amountA=(targetKcal*b.proteinPerUnit-b.kcalPerUnit*targetProtein)/det;
+ const amountB=(a.kcalPerUnit*targetProtein-targetKcal*a.proteinPerUnit)/det;
+ if(!Number.isFinite(amountA)||!Number.isFinite(amountB))return null;
+ return [{item:a,amount:roundQuantity(amountA,a)},{item:b,amount:roundQuantity(amountB,b)}];
+}
+function suggestionKey(items){
+ return items.slice().sort((a,b)=>a.item.id.localeCompare(b.item.id)).map(x=>`${x.item.id}:${round(x.amount,2)}`).join("|");
+}
+function createMealSuggestions(pool,targetKcal,targetProtein){
+ const raw=[];
+ pool.forEach(item=>{
+  const byKcal=targetKcal/item.kcalPerUnit;
+  const byProtein=item.proteinPerUnit>0?targetProtein/item.proteinPerUnit:byKcal;
+  [byKcal,(byKcal+byProtein)/2,byProtein].forEach(amount=>{
+   const suggestion=[{item,amount:roundQuantity(amount,item)}];
+   if(validSuggestion(suggestion))raw.push(suggestion);
+  });
+ });
+ for(let i=0;i<pool.length;i++){
+  for(let j=i+1;j<pool.length;j++){
+   const solved=solveTwo(pool[i],pool[j],targetKcal,targetProtein);
+   if(solved&&validSuggestion(solved))raw.push(solved);
+  }
+ }
+ const thirdFractions=[0.15,0.25,0.35];
+ for(let i=0;i<pool.length;i++){
+  for(let j=i+1;j<pool.length;j++){
+   for(let k=0;k<pool.length;k++){
+    if(k===i||k===j)continue;
+    const third=pool[k];
+    for(const fraction of thirdFractions){
+     const thirdAmount=roundQuantity((targetKcal*fraction)/third.kcalPerUnit,third);
+     const remainingKcal=targetKcal-third.kcalPerUnit*thirdAmount;
+     const remainingProtein=targetProtein-third.proteinPerUnit*thirdAmount;
+     if(remainingKcal<=0||remainingProtein<0)continue;
+     const pair=solveTwo(pool[i],pool[j],remainingKcal,remainingProtein);
+     if(!pair)continue;
+     const suggestion=[...pair,{item:third,amount:thirdAmount}];
+     if(validSuggestion(suggestion))raw.push(suggestion);
+    }
+   }
+  }
+ }
+ const unique=new Map();
+ raw.forEach(items=>{
+  const score=suggestionScore(items,targetKcal,targetProtein),key=suggestionKey(items);
+  if(!unique.has(key)||score<unique.get(key).score)unique.set(key,{items,score});
+ });
+ return [...unique.values()]
+  .filter(x=>{const t=suggestionTotals(x.items);return t.kcal>targetKcal*0.65&&t.kcal<targetKcal*1.35&&t.protein>targetProtein*0.55&&t.protein<targetProtein*1.45;})
+  .sort((a,b)=>a.score-b.score).slice(0,5);
+}
+
+document.getElementById("generateMealSuggestions").onclick=()=>{
+ const targetKcal=Number(document.getElementById("plannerTargetKcal").value);
+ const targetProtein=Number(document.getElementById("plannerTargetProtein").value);
+ if(!targetKcal||targetKcal<=0||!targetProtein||targetProtein<=0)return alert("Skriv inn gyldige mål for kalorier og protein.");
+ const selected=plannerCatalog().filter(x=>plannerSelectedIds.has(x.id));
+ if(selected.length<2)return alert("Velg minst to matvarer eller oppskrifter.");
+ plannerSuggestions=createMealSuggestions(selected.slice(0,10),targetKcal,targetProtein);
+ renderPlannerSuggestions(targetKcal,targetProtein);
+};
+
+function renderPlannerSuggestions(targetKcal,targetProtein){
+ const wrap=document.getElementById("plannerResults");wrap.innerHTML="";
+ if(!plannerSuggestions.length){wrap.innerHTML='<div class="planner-empty">Fant ingen gode kombinasjoner. Prøv å velge flere matvarer, særlig én proteinrik og én mer kaloririk matvare.</div>';return;}
+ plannerSuggestions.forEach((suggestion,index)=>{
+  const total=suggestionTotals(suggestion.items),kcalDiff=total.kcal-targetKcal,proteinDiff=total.protein-targetProtein;
+  const card=document.createElement("div");card.className="planner-result";
+  card.innerHTML=`<div class="planner-result-head"><div><div class="planner-result-title">Forslag ${index+1}</div><div class="planner-result-score">${kcalDiff>=0?"+":""}${round(kcalDiff,0)} kcal · ${proteinDiff>=0?"+":""}${round(proteinDiff)} g protein fra målet</div></div><span class="badge">${Math.max(0,Math.round((1-suggestion.score)*100))}% treff</span></div><div class="planner-items"></div><div class="planner-total"><div><strong>${round(total.kcal,0)} kcal · ${round(total.protein)} g protein</strong></div><button class="btn primary">Legg til i dag</button></div>`;
+  const itemsWrap=card.querySelector(".planner-items");
+  suggestion.items.forEach(entry=>{
+   const kcal=entry.item.kcalPerUnit*entry.amount,protein=entry.item.proteinPerUnit*entry.amount,row=document.createElement("div");
+   row.className="planner-item";
+   row.innerHTML=`<div><div class="planner-item-name">${escapeHtml(entry.item.name)}</div><div class="planner-item-meta">${round(kcal,0)} kcal · ${round(protein)} g protein</div></div><strong>${round(entry.amount,2)} ${escapeHtml(entry.item.unit)}</strong>`;
+   itemsWrap.appendChild(row);
+  });
+  card.querySelector("button").onclick=()=>addPlannerSuggestion(suggestion);
+  wrap.appendChild(card);
+ });
+}
+
+function addPlannerSuggestion(suggestion){
+ const meal=document.getElementById("plannerMeal").value,date=dateInput.value;
+ if(!state.logs[date])state.logs[date]=[];
+ suggestion.items.forEach(entry=>{
+  const item=entry.item;
+  state.logs[date].push({id:uid(),meal,name:item.name,unit:item.unit,amount:entry.amount,kcalPerUnit:item.kcalPerUnit,proteinPerUnit:item.proteinPerUnit,sourceType:item.sourceType,sourceId:item.sourceId,componentItems:item.componentItems?clone(item.componentItems):null});
+ });
+ save();openMealSections.add(`${date}:${meal}`);renderToday();renderOverview();alert("Måltidsforslaget er lagt til på valgt dato.");
+}
+
 function dateKeyFromOffset(offset){
  const d=new Date();
  d.setHours(12,0,0,0);
@@ -1897,7 +2138,7 @@ function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;",
 
 setupSavedMealType();
 if(!savedMealDraft.length&&savedMealCatalog().length){const c=savedMealCatalog()[0];savedMealDraft=[{id:uid(),type:c.type,itemId:c.id,amount:c.unit==="g"?100:1}]}
-renderToday();renderFoods();renderRecipes();renderSavedMeals();renderOverview();renderGoals();renderIngredientRows();updateRecipeModeUI();renderSavedMealRows();
+renderToday();renderFoods();renderRecipes();renderSavedMeals();renderPlanner();renderOverview();renderGoals();renderIngredientRows();updateRecipeModeUI();renderSavedMealRows();
 
 // PWA: registrer service worker
 if ("serviceWorker" in navigator) {
